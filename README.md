@@ -1,6 +1,4 @@
 
-Here's the revised layout with improved formatting:
-
 # Obsidian Explorer Shortcuts
 
 A plugin for Obsidian that enhances file navigation and manipulation in the explorer using keyboard shortcuts.
