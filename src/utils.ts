@@ -35,13 +35,13 @@ export function hasClass(element: Element | null, className: string): boolean {
     return element?.classList.contains(className) ?? false;
 }
 
-export const isNavFile = (element: Element | null): boolean => 
+export const isNavFile = (element: Element | null): boolean =>
     hasClass(element, ElementType.File);
 
-export const isNavFolded = (element: Element | null): boolean => 
+export const isNavFolded = (element: Element | null): boolean =>
     hasClass(element, 'is-collapsed');
 
-export const isNavFolder = (element: Element | null): boolean => 
+export const isNavFolder = (element: Element | null): boolean =>
     hasClass(element, ElementType.Folder);
 
 
@@ -115,9 +115,9 @@ export function collapseAllExplorerFolders(plugin: ExplorerShortcuts, collapse =
 
 //////////// explorer ///////////////
 
-export const isOverExplorerLeaf = (plugin: ExplorerShortcuts) => {
-    const leafContent = plugin.elementFromPoint?.closest(".workspace-leaf-content[data-type='file-explorer']");
-    return leafContent
+export const isOverExplorerNavContainer = (plugin: ExplorerShortcuts): Element | null => {
+    const leafContent = plugin.elementFromPoint?.closest(".workspace-leaf-content[data-type='file-explorer'] .nav-files-container");
+    return leafContent || null;
 }
 
 export function getExplorerLeaf(plugin: ExplorerShortcuts): FileExplorerLeaf | null {

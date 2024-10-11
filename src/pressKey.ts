@@ -5,10 +5,10 @@ import { createNewItem } from "./newFileFolder";
 import { paste } from "./paste";
 import { rename } from "./rename"
 import { reveal, toggleCollapse } from "./toggleCollapse";
-import { isOverExplorerLeaf } from "./utils";
+import { isOverExplorerNavContainer } from "./utils";
 
 export async function keyUp(e: KeyboardEvent) {
-    if (!isOverExplorerLeaf(this)) return;
+    if (!isOverExplorerNavContainer(this)) return;
 
     const beingRenamed = this.elementFromPoint?.closest(".is-being-renamed")
 
@@ -72,6 +72,8 @@ export async function keyUp(e: KeyboardEvent) {
 }
 
 export function keyDown(e: KeyboardEvent) {
+    if (!isOverExplorerNavContainer(this)) return;
+
     if (this.renaming) return
     if (keysToBlock(e.key)) {
         e.preventDefault();

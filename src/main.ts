@@ -2,7 +2,7 @@ import { Plugin } from "obsidian";
 import { DEFAULT_SETTINGS, Operation } from "./types/variables";
 import { ESSettingTab } from "./settings";
 import { keyDown, keyUp } from "./pressKey";
-import { getEltFromMousePos, isOverExplorerLeaf, isOverNavFile, isOverNavFolder } from "./utils";
+import { getEltFromMousePos, isOverExplorerNavContainer, isOverNavFile, isOverNavFolder } from "./utils";
 import { ESSettings } from "./types/global";
 
 export default class ExplorerShortcuts extends Plugin {
@@ -47,11 +47,7 @@ export default class ExplorerShortcuts extends Plugin {
 
 function mouseMoveEvents(e: MouseEvent) {
 	this.elementFromPoint = getEltFromMousePos(this, e);
-	if (!isOverExplorerLeaf(this)) {
-
-		return
-	}
-
+	if (!isOverExplorerNavContainer(this)) return
 	this.explorerfolderContainer = isOverNavFolder(this)
 	this.explorerfileContainer = isOverNavFile(this)
 }
