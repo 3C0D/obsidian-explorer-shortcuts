@@ -1,25 +1,42 @@
-import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Plugin } from "obsidian";
+import { DEFAULT_SETTINGS, Operation } from "./types/variables";
+import { ESSettingTab } from "./settings";
+import { keyDown, keyUp } from "./pressKey";
+import { getEltFromMousePos, isOverExplorerLeaf, isOverNavFile, isOverNavFolder } from "./utils";
+import { ESSettings } from "./types/global";
 
-// Remember to rename these classes and interfaces
-
-interface MyPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
-
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class ExplorerShortcuts extends Plugin {
+	settings: ESSettings;
+	mousePosition: { x: number; y: number };
+	elementFromPoint: Element | null = null;
+	explorerfileContainer: Element | null = null;
+	explorerfolderContainer: Element | null = null;
+	renaming = false
+	blockedKeys: Record<string, boolean> = {};
+	operation: Operation | null = null;
 
 	async onload() {
 		await this.loadSettings();
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new ESSettingTab(this.app, this));
+		this.app.workspace.onLayoutReady(this.onLayoutReady.bind(this));
+	}
+
+	private onLayoutReady(): void {
+		this.registerDomEvents();
+	}
+
+	private registerDomEvents(): void {
+		this.registerDomEvent(document, "mousemove", mouseMoveEvents.bind(this));
+		this.registerDomEvent(document, "keydown", keyDown.bind(this), true);
+		this.registerDomEvent(document, "keyup", async (e) => await keyUp.call(this, e));
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.loadData()
+		);
 	}
 
 	async saveSettings() {
@@ -27,19 +44,14 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
+function mouseMoveEvents(e: MouseEvent) {
+	this.elementFromPoint = getEltFromMousePos(this, e);
+	if (!isOverExplorerLeaf(this)) {
+
+		return
 	}
 
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-	}
+	this.explorerfolderContainer = isOverNavFolder(this)
+	this.explorerfileContainer = isOverNavFile(this)
 }

@@ -1,0 +1,28 @@
+.copy {
+    background-color: rgb(142, 124, 108);
+    border-radius: 10%;
+}
+
+.cut {
+    background-color: rgb(144, 76, 115);
+    border-radius: 10%;
+}
+
+/* @keyframes flash {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+} */
+
+/* .nav-file-title.is-active.reveal {
+    background-color: rgb(101, 98, 75);
+    animation: flash 0.5s ease-in-out;
+} */
