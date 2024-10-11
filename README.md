@@ -1,62 +1,47 @@
-Obsidian Explorer Shortcuts
-Supercharge Your Obsidian File Explorer with Keyboard Shortcuts
 
-Explorer Shortcuts is an Obsidian plugin that empowers you to navigate and manipulate your files in the Obsidian file explorer faster and more efficiently using keyboard shortcuts.
+Here's the revised layout with improved formatting:
 
-Key Features:
+# Obsidian Explorer Shortcuts
 
-Effortless Navigation and Actions:
+A plugin for Obsidian that enhances file navigation and manipulation in the explorer using keyboard shortcuts.
 
-    No Clicks Needed! Simply hover over a file or folder in the explorer tree and use the shortcuts. You don't need to click to select items before pressing the shortcuts.
+## Key Features
 
-    Seamless Navigation: Use Up/Down Arrow keys to easily navigate between files and folders in the explorer tree. The plugin automatically unfolds parent folders and scrolls to the active file for easy viewing in the editor.
+- **Efficient Copy/Cut and Paste**: Files and folders are highlighted when copied or cut, allowing you to navigate directly to the destination for pasting without dragging or using complex context menus.
 
-    Instant Actions: Use F2 or R to rename, N to create new files, F to create new folders, X to cut, C to copy, V to paste, and Delete to delete files and folders directly without needing to open the context menu.
+- **Explorer-Editor Synergy**: Use arrow keys to browse files in the explorer, automatically displaying them in the editor. Right/left arrows reveal or collapse folders, enhancing file structure visualization.
 
-    Multi-Paste: Copy or cut multiple files/folders, then navigate to the destination folder and paste them all at once with a single shortcut.
+- **One-Key Actions**: Perform common file operations (rename, create, delete) with single key presses.
 
-Why Explorer Shortcuts?
+## Why Use Explorer Shortcuts?
 
-    Faster File Management: Say goodbye to tedious clicks and scrolling. Get your work done quickly and efficiently.
+- Simplifies file management tasks
+- Reduces reliance on mouse interactions
+- Speeds up your Obsidian workflow
 
-    Improved Workflow: Streamline your file organization and boost your productivity.
+## Navigation
 
-    Enhanced File Explorer: Enjoy a much more intuitive and responsive way to manage your Obsidian files.
+- **Up/Down Arrow**: Navigate between files and folders in the explorer tree and view them in the editor. The plugin automatically unfolds parent folders and scrolls to the active file for effortless navigation.
+- **Left Arrow**: Toggle collapse/expand all folders in the explorer tree (synced with the UI button in the explorer header).
+- **Right Arrow**: Reveal the active file in the explorer tree and scroll to it.
 
-Detailed Features
+## File/Folder Actions
 
-Navigation:
+- **F2 or R**: Rename the selected file/folder.
+- **N**: Create a new file.
+- **F**: Create a new folder.
+- **X**: Cut the selected file/folder (Press again to cancel).
+- **C**: Copy the selected file/folder (Press again to cancel).
+- **Esc**: Cancel all operations.
+- **V**: Paste the cut or copied file/folder into the current folder. You can mix and paste multiple files/folders simultaneously.
+- **Delete**: Delete the selected file/folder. By default, a confirmation dialog is shown for folders, but not for files. Be careful not to accidentally press Delete while hovering over the explorer tree. To avoid this, enable both confirmations in the plugin settings. You can still use the default Obsidian Delete button after focusing on a file in the explorer.
 
-    Up/Down Arrow: Navigate between files and folders in the explorer tree and view them in the editor. The plugin automatically unfolds parent folders and scrolls to the active file for effortless navigation.
+## Settings
 
-    Left Arrow: Toggle collapse/expand all folders in the explorer tree (synced with the UI button in the explorer header).
+- **Confirmation on Deleting**: Prompts for confirmation before deleting files or folders.
 
-    Right Arrow: Reveal the active file in the explorer tree and scroll to it.
-
-File/Folder Actions:
-
-    F2 or R: Rename the selected file/folder.
-
-    N: Create a new file.
-
-    F: Create a new folder.
-
-    X: Cut the selected file/folder (Press again to cancel).
-
-    C: Copy the selected file/folder (Press again to cancel).
-
-    Esc: Cancel all operations.
-
-    V: Paste the cut or copied file/folder into the current folder. You can mix and paste multiple files/folders simultaneously.
-
-    Delete: Delete the selected file/folder. By default, a confirmation dialog is shown for folders, but not for files. Be careful not to accidentally press Delete while hovering over the explorer tree. To avoid this, enable both confirmations in the plugin settings. You can still use the default Obsidian Delete button after focusing on a file in the explorer.
-
-Settings:
-
-** Confirmation on Deleting: Prompts for confirmation before deleting files or folders.
-
-Explorer Shortcuts streamlines your Obsidian file management, boosting your productivity and efficiency.
-
+Explorer Shortcuts streamlines your Obsidian file management, boosting your productivity and efficiency.  
+  
 ## Development
 
 This plugin uses a template that automates the development and publication processes on GitHub, including releases. You can develop either inside or outside your Obsidian vault.
