@@ -1,4 +1,3 @@
-
 # Obsidian Explorer Shortcuts
 
 A plugin for Obsidian that enhances file navigation and manipulation in the explorer using keyboard shortcuts.
@@ -10,6 +9,10 @@ A plugin for Obsidian that enhances file navigation and manipulation in the expl
 - **Explorer-Editor Synergy**: Use arrow keys to browse files in the explorer, automatically displaying them in the editor. Right/left arrows reveal or collapse folders, enhancing file structure visualization.
 
 - **One-Key Actions**: Perform common file operations (rename, create, delete) with single key presses.
+
+## Quick Help
+
+Press **h** while hovering over the file explorer to display a modal with a reminder of all available shortcuts.
 
 ## Why Use Explorer Shortcuts?
 
@@ -33,6 +36,11 @@ A plugin for Obsidian that enhances file navigation and manipulation in the expl
 - **Esc**: Cancel all operations.
 - **V**: Paste the cut or copied file/folder into the current folder. You can mix and paste multiple files/folders simultaneously.
 - **Delete**: Delete the selected file/folder. By default, a confirmation dialog is shown for folders, but not for files. Be careful not to accidentally press Delete while hovering over the explorer tree. To avoid this, enable both confirmations in the plugin settings. You can still use the default Obsidian Delete button after focusing on a file in the explorer.
+- **W**: Open the hovered file in a new window.
+
+## Other
+
+- **h**: Show a modal with a reminder of all available shortcuts.
 
 ## Settings
 

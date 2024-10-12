@@ -69,3 +69,26 @@ export async function confirm(
 		message
 	);
 }
+
+export function showExplorerShortcutsModal(app: App) {
+    const shortcuts = [
+        "Up/Down Arrow: Navigate between files and folders",
+        "Left Arrow: Toggle collapse/expand all folders",
+        "Right Arrow: Reveal the active file",
+        "F2 or R: Rename the selected file/folder",
+        "N: Create a new file",
+        "F: Create a new folder",
+        "X: Cut the selected file/folder",
+        "C: Copy the selected file/folder",
+        "Esc: Cancel all operations",
+        "V: Paste the cut or copied file/folder",
+        "Delete: Delete the selected file/folder",
+        "W: Open the hovered file in a new window",
+        "Shift + ?: Show this modal"
+    ];
+
+    const modal = new Modal(app);
+    modal.titleEl.textContent = "Explorer shortcuts reminder";
+    modal.contentEl.innerHTML = shortcuts.map(shortcut => `<p>${shortcut}</p>`).join('');
+    modal.open();
+}

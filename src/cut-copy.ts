@@ -1,5 +1,5 @@
 import ExplorerShortcuts from "./main"
-import { getNavFilesContainerItems, getHoveredElement, getElPath } from "./utils"
+import { getNavFilesContainerItems, getHoveredElement } from "./utils"
 import { Operation } from "./types/variables";
 
 export function performOperation(plugin: ExplorerShortcuts, operation: Operation) {
@@ -7,9 +7,6 @@ export function performOperation(plugin: ExplorerShortcuts, operation: Operation
     const hovered = getHoveredElement(plugin);
 
     if (!hovered) return;
-
-    const path = getElPath(hovered);
-    if (path === ".") return; // Ne rien faire si à la racine
 
     const oppositeClass = operation === Operation.Cut ? 'copy' : 'cut';
     if (hovered.classList.contains(oppositeClass)) {
@@ -28,6 +25,7 @@ export function cut(plugin: ExplorerShortcuts) {
 
 export function resetOperations(plugin: ExplorerShortcuts) {
     const items = getNavFilesContainerItems();
+    console.log("items", items)
     items.forEach((item) => {
         item.classList.remove('copy', 'cut');
     });

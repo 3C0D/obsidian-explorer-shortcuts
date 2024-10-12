@@ -1,11 +1,12 @@
 import { copy, cut, resetOperations } from "./cut-copy";
 import { deleteItem, triggerDelete } from "./delete";
-import { navigateOverExplorer } from "./navigateOverExplorer";
+import { navigateOverExplorer, openInNewWindow } from "./navigateOverExplorer";
 import { createNewItem } from "./newFileFolder";
 import { paste } from "./paste";
 import { rename } from "./rename"
 import { reveal, toggleCollapse } from "./toggleCollapse";
-import { isOverExplorerNavContainer } from "./utils";
+import { isOverExplorerNavContainer, getHoveredElement } from "./utils";
+import { showExplorerShortcutsModal } from "./modal";
 
 export async function keyUp(e: KeyboardEvent) {
     if (!isOverExplorerNavContainer(this)) return;
@@ -68,6 +69,13 @@ export async function keyUp(e: KeyboardEvent) {
         await deleteItem(this, e)
         triggerDelete(this, e)
     }
+    if (e.key === 'w') {
+        const hoveredElement = getHoveredElement(this);
+        await openInNewWindow(this, hoveredElement);
+    }
+    if (e.key === 'h') {
+        showExplorerShortcutsModal(this.app);
+    }
 
 }
 
@@ -82,6 +90,6 @@ export function keyDown(e: KeyboardEvent) {
 }
 
 function keysToBlock(key: string) {
-    const blockedKeysList = ['n', 'r', 'x', 'c', 'q', 'v', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'f', 'F2', 'Escape', 'Delete'];
+    const blockedKeysList = ['n', 'r', 'x', 'c', 'q', 'v', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'f', 'F2', 'Escape', 'Delete', 'w', 'h'];
     return blockedKeysList.includes(key);
 }
