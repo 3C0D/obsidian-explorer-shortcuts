@@ -1,1 +1,1 @@
-fix on esc not canceling all cut(s)/cpy(ies)
+new shortcuts: h for help and w to open file in new window
