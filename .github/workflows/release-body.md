@@ -1,1 +1,1 @@
-cut copy fixed if root file/folder 
+fix on esc not canceling all cut(s)/cpy(ies)
