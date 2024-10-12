@@ -1,1 +1,1 @@
-fix on release missing files
+cut copy fixed if root file/folder 
