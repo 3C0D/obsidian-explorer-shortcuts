@@ -1,11 +1,12 @@
 import { copy, cut, resetOperations } from "./cut-copy";
 import { deleteItem, triggerDelete } from "./delete";
-import { navigateOverExplorer, openInNewWindow } from "./navigateOverExplorer";
+import { navigateOverExplorer } from "./navigateOverExplorer";
 import { createNewItem } from "./newFileFolder";
 import { paste } from "./paste";
 import { rename } from "./rename"
 import { reveal, toggleCollapse } from "./toggleCollapse";
-import { isOverExplorerNavContainer, getHoveredElement } from "./utils";
+import { isOverExplorerNavContainer, getHoveredElement, getElPath } from "./utils";
+import ExplorerShortcuts from "./main";
 import { showExplorerShortcutsModal } from "./modal";
 
 export async function keyUp(e: KeyboardEvent) {
@@ -92,4 +93,21 @@ export function keyDown(e: KeyboardEvent) {
 function keysToBlock(key: string) {
     const blockedKeysList = ['n', 'r', 'x', 'c', 'q', 'v', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'f', 'F2', 'Escape', 'Delete', 'w', 'h'];
     return blockedKeysList.includes(key);
+}
+
+
+async function openInNewWindow(
+    plugin: ExplorerShortcuts,
+    next: Element | null
+) {
+    const path = getElPath(next);
+    if (!path) return;
+
+    const item = plugin.app.vault.getFileByPath(path);
+    if (!item) return;
+
+    const newLeaf = plugin.app.workspace.getLeaf('window');
+    if (!newLeaf) return;
+
+    await newLeaf.openFile(item);
 }

@@ -193,19 +193,3 @@ export async function openNext(
     await activeLeaf.openFile(item);
     await scrollToActiveEl(plugin);
 }
-
-export async function openInNewWindow(
-    plugin: ExplorerShortcuts,
-    next: Element | null
-) {
-    const path = getElPath(next);
-    if (!path) return;
-
-    const item = plugin.app.vault.getFileByPath(path);
-    if (!item) return;
-
-    const newLeaf = plugin.app.workspace.getLeaf('window');
-    if (!newLeaf) return;
-
-    await newLeaf.openFile(item);
-}

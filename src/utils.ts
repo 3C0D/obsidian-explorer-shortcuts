@@ -84,8 +84,7 @@ export function isFileItemCollapsed(item: [string, TreeItem<FileTreeItem>]): boo
 export function getExplorerFileItems(plugin: ExplorerShortcuts): [string, TreeItem<FileTreeItem>][] {
     const fileExplorerView = getExplorerLeaf(plugin)?.view;
     if (!fileExplorerView || !fileExplorerView.fileItems) return [];
-    // slice to skip root
-    return Object.entries(fileExplorerView.fileItems).slice(1) || [];
+    return Object.entries(fileExplorerView.fileItems) || [];
 }
 
 

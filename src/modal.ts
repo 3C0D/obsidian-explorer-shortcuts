@@ -2,8 +2,12 @@ import { App, Modal, Scope, Setting } from "obsidian";
 
 type ConfirmCallback = (confirmed: boolean) => void;
 
-// https://github.com/eoureo/obsidian-runjs/blob/master/src/confirm_modal.ts#L51
 class ConfirmModal extends Modal {
+    private confirm(confirmed: boolean) {
+        this.callback(confirmed);
+        this.close();
+    }
+
 	constructor(
 		app: App,
 		public message: string,
@@ -11,9 +15,8 @@ class ConfirmModal extends Modal {
 	) {
 		super(app);
 		this.scope = new Scope(this.scope);
-		this.scope.register([], "Enter", (evt, ctx) => {
-			this.callback(true);
-			this.close();
+		this.scope.register([], "Enter", () => {
+			this.confirm(true);
 		});
 	}
 
@@ -27,16 +30,11 @@ class ConfirmModal extends Modal {
 			.addButton((b) => {
 				b.setIcon("checkmark")
 					.setCta()
-					.onClick(() => {
-						this.callback(true);
-						this.close();
-					});
+					.onClick(() => this.confirm(true))
 			})
 			.addExtraButton((b) =>
-				b.setIcon("cross").onClick(() => {
-					this.callback(false);
-					this.close();
-				})
+				b.setIcon("cross")
+					.onClick(() => this.confirm(false))
 			);
 	}
 
@@ -61,7 +59,7 @@ async function openConfirmModal(
 	});
 }
 
-export async function confirm(
+export async function confirmation(
 	message: string,
 ): Promise<boolean> {
 	return await openConfirmModal(

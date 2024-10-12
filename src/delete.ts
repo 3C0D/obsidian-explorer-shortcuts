@@ -1,7 +1,7 @@
 import { Notice, TFile, TFolder } from "obsidian"
 import ExplorerShortcuts from "./main"
 import { getElPath, getExplorerView, getHoveredElement } from "./utils"
-import { confirm } from "./modal"
+import { confirmation } from "./modal";
 
 export async function deleteItem(plugin: ExplorerShortcuts, e: KeyboardEvent) {
     let confirmed = true
@@ -31,7 +31,7 @@ export async function deleteItem(plugin: ExplorerShortcuts, e: KeyboardEvent) {
 }
 
 async function getConfirmed(itemFile: TFile | TFolder) {
-    return confirm(" Are you sure you want to delete " + itemFile.name + "?")
+    return confirmation(" Are you sure you want to delete " + itemFile.name + "?")
 }
 
 export function triggerDelete(plugin: ExplorerShortcuts, evt: KeyboardEvent) {

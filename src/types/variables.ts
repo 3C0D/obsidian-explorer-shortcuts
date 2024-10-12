@@ -18,4 +18,10 @@ export enum ElementType {
     FilesContainer = 'nav-files-container'
 }
 
+export enum ConflictAction {
+    Increment = "increment",
+    Replace = "replace",
+    Cancel = "cancel"
+}
+
 export type NavigationDirection = 'up' | 'down';

@@ -42,7 +42,6 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
 
 //     input.onclick = function (event) {
 //         event.stopPropagation();
-//         event.stopImmediatePropagation();
 //     }
 //     // add listeners enter escape and blur
 //     input.onblur = handleBlur(plugin, firstchild, input, path, isNavFile);

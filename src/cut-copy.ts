@@ -25,7 +25,6 @@ export function cut(plugin: ExplorerShortcuts) {
 
 export function resetOperations(plugin: ExplorerShortcuts) {
     const items = getNavFilesContainerItems();
-    console.log("items", items)
     items.forEach((item) => {
         item.classList.remove('copy', 'cut');
     });
