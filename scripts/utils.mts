@@ -66,7 +66,7 @@ export const removeMainCss = async (outdir: string): Promise<void> => {
 export const copyFile = async (source: string, destination: string, message = ""): Promise<void> => {
     try {
         await fs.copyFile(source, destination);
-        // console.log(message || 'File was copied successfully.');
+        console.log(message || 'File was copied successfully.');
     } catch (err) {
         console.error('Error copying file:', err);
     }

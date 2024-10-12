@@ -39,20 +39,14 @@ async function handleStyles() {
 
 function getOutdir() {
 	const REAL = process.env.REAL?.trim() || "-1";
-	let outdir = "./";
+	if (REAL === "-1") return { REAL, outdir: "./" };
+	if (!process.env.REAL_VAULT && !process.env.TEST_VAULT) return { REAL: "-1", outdir: "./" };
 
-	if (!process.env.REAL_VAULT && !process.env.TEST_VAULT) return { REAL: "-1", outdir };
+	const outdir = REAL === "1"
+		? process.env.REAL_VAULT?.trim() ?? "./"
+		: process.env.TEST_VAULT?.trim() ?? "./";
 
-	switch (REAL) {
-		case "1":
-			outdir = process.env.REAL_VAULT?.trim() ?? "./";
-			break;
-		case "0":
-			outdir = process.env.TEST_VAULT?.trim() ?? "./";
-			break;
-	}
-	outdir = path.join(outdir, '.obsidian', 'plugins', manifest.id);
-	return { REAL, outdir };
+	return { REAL, outdir: path.join(outdir, '.obsidian', 'plugins', manifest.id) };
 }
 
 async function main() {
@@ -64,6 +58,7 @@ async function main() {
 	console.log("REAL", REAL);
 
 	const entryPoints = noStyles ? ['src/main.ts'] : ['src/main.ts', 'src/styles.css'];
+	console.log("entryPoints", entryPoints)
 
 	const context = await esbuild.context({
 		banner: { js: banner },
