@@ -1,7 +1,7 @@
 {
 	"id": "explorer-shortcuts",
 	"name": "Explorer Shortcuts",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"minAppVersion": "0.15.0",
 	"description": "Open successive files navigating with arrows ↑↓ over the explorer and use shortcuts for current actions on files/folders (cut, paste, copy, rename, delete, etc).",
 	"author": "1C0D",
