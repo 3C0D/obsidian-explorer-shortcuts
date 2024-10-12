@@ -1,5 +1,5 @@
 import ExplorerShortcuts from "./main"
-import { getExplorerFileItems, getHoveredElement, getElPath } from "./utils"
+import { getNavFilesContainerItems, getHoveredElement, getElPath } from "./utils"
 import { Operation } from "./types/variables";
 
 export function performOperation(plugin: ExplorerShortcuts, operation: Operation) {
@@ -27,9 +27,9 @@ export function cut(plugin: ExplorerShortcuts) {
 }
 
 export function resetOperations(plugin: ExplorerShortcuts) {
-    const items = getExplorerFileItems(plugin);
-    items.forEach(([_, item]) => {
-        item.el.classList.remove('copy', 'cut');
+    const items = getNavFilesContainerItems();
+    items.forEach((item) => {
+        item.classList.remove('copy', 'cut');
     });
     plugin.operation = null;
 }
