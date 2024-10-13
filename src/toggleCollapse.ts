@@ -15,13 +15,16 @@ export function toggleCollapse() {
     }
 }
 
-export async function reveal(plugin: ExplorerShortcuts) {
+// it also exist in the API revealInFolder. to see...
+export function reveal(plugin: ExplorerShortcuts) {
     try {
-        // Execute the reveal command twice to ensure proper expansion of nested folders
-        await Promise.all([
-            plugin.app.commands.executeCommandById("file-explorer:reveal-active-file"),
-            plugin.app.commands.executeCommandById("file-explorer:reveal-active-file")
-        ]);
+        // run twice to ensure the file is revealed on long trees
+        plugin.app.commands.executeCommandById(
+            "file-explorer:reveal-active-file"
+        );
+        plugin.app.commands.executeCommandById(
+            "file-explorer:reveal-active-file"
+        );
 
         // Focus on active leaf after a short delay to ensure UI has updated
         setTimeout(() => {

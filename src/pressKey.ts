@@ -33,7 +33,7 @@ export async function keyUp(e: KeyboardEvent) {
         toggleCollapse()
     }
     if (e.key === 'ArrowRight') {
-        await reveal(this)
+        reveal(this)
     }
 
     if (!this.elementFromPoint?.closest(".nav-files-container")) return;
