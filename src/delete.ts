@@ -26,7 +26,7 @@ export async function deleteItem(plugin: ExplorerShortcuts, e: KeyboardEvent) {
     // @ts-expect-error
     tree.handleDeleteSelectedItems(e);
     const text = itemFile instanceof TFile ? "File" : "Folder"
-    new Notice(`${text} removed: ` + itemFile.name, 2000)
+    new Notice(`${text} removed: ` + itemFile.name, 3500)
     return
 }
 

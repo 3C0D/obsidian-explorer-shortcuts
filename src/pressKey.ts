@@ -9,8 +9,10 @@ import { isOverExplorerNavContainer, getHoveredElement, getElPath } from "./util
 import ExplorerShortcuts from "./main";
 import { showExplorerShortcutsModal } from "./modal";
 
+let goToUp = false // don't run up if not good key
+
 export async function keyUp(e: KeyboardEvent) {
-    if (!isOverExplorerNavContainer(this)) return;
+    if (!goToUp || !isOverExplorerNavContainer(this)) return;
 
     const beingRenamed = this.elementFromPoint?.closest(".is-being-renamed")
 
@@ -46,7 +48,6 @@ export async function keyUp(e: KeyboardEvent) {
     }
 
     if (!this.elementFromPoint?.closest(".tree-item")) return
-
     if (e.key === 'r' || e.key === 'F2') {
         this.renaming = true
         await rename(this, e)
@@ -87,6 +88,10 @@ export function keyDown(e: KeyboardEvent) {
     if (keysToBlock(e.key)) {
         e.preventDefault();
         this.blockedKeys[e.key] = true;
+        goToUp = true;
+    } else {
+        goToUp = false;
+        return
     }
 }
 

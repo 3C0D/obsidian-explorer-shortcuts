@@ -12,7 +12,8 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
     const hoveredItem = view.fileItems[path]
     if (!hoveredItem) return
     tree.setFocusedItem(hoveredItem);
-    tree.handleRenameFocusedItem()
+    //@ts-ignore
+    tree.handleRenameFocusedItem(e)
     const input = view.containerEl.querySelector('[contenteditable="true"]') as HTMLInputElement | null;
     if (!input) return
     input.onblur = function () {
@@ -20,82 +21,3 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
         hovered.firstElementChild?.classList.remove("has-focus")
     }
 }
-
-// export function renameEl(plugin: ExplorerShortcuts, element: Element) {
-//     const path = getElPath(element)
-//     const firstchild = element.firstElementChild
-//     if (!firstchild) return
-//     firstchild.classList.add("has-focus")
-//     const isNavFile = element.classList.contains("nav-file")
-//     const input = isNavFile ? firstchild.children[0] as HTMLInputElement : firstchild.children[1] as HTMLInputElement ?? firstchild as HTMLInputElement
-//     try {
-//         input.setAttribute("contenteditable", "true");
-//     } catch (e) {
-//     }
-
-//     input.focus();
-//     const range = document.createRange();
-//     range.selectNodeContents(input);
-//     const selection = window.getSelection();
-//     selection?.removeAllRanges();
-//     selection?.addRange(range);
-
-//     input.onclick = function (event) {
-//         event.stopPropagation();
-//     }
-//     // add listeners enter escape and blur
-//     input.onblur = handleBlur(plugin, firstchild, input, path, isNavFile);
-//     input.onkeydown = handleKeyDown(plugin, firstchild, input, path);
-// }
-
-// function handleBlur(plugin: ExplorerShortcuts, firstchild: Element, input: HTMLInputElement, path: string, isNavFile: boolean) {
-//     return async () => {
-//         plugin.renaming = false
-//         firstchild.classList.remove("has-focus")
-//         input.removeAttribute("contenteditable");
-//         const pathEls = getPathEls(path)
-//         const pre = pathEls.dir === "." ? "" : pathEls.dir + "/"
-//         const new_path = pre + input.textContent + pathEls.ext
-//         const itemFile = plugin.app.vault.getAbstractFileByPath(path);
-
-//         try {
-//             await renameFileOrFolder(plugin, itemFile, new_path);
-//         } catch {
-//             plugin.renaming = false
-//             return
-//         }
-//     }
-// }
-
-// function handleKeyDown(plugin: ExplorerShortcuts, firstchild: Element, input: HTMLInputElement, path: string) {
-//     return async (e: KeyboardEvent) => {
-//         if (e.key === "Enter") {
-//             input.blur()
-//         }
-//         if (e.key === "Escape") {
-//             plugin.renaming = false
-//             firstchild.classList.remove("has-focus")
-//             input.removeAttribute("contenteditable");
-//             input.blur();
-//         }
-//     }
-// }
-
-// async function renameFileOrFolder(plugin: ExplorerShortcuts, itemFile: TAbstractFile | null, new_path: string) {
-//     if (itemFile instanceof TFile) {
-//         await plugin.app.fileManager.renameFile(itemFile, new_path);
-//     } else {
-//         await plugin.app.vault.rename(itemFile as TFolder, new_path);
-//     }
-// }
-
-// export function getPathElements(_path: string) {
-//     const pathEls = getPathEls(_path)
-//     const pathWithoutExt = normalizePath(path.join(path.basename(_path, path.extname(_path))))
-//     return { pathEls, pathWithoutExt }
-// }
-
-// export const selectValue = (input: HTMLInputElement | null) => {
-//     input?.setSelectionRange(0, input?.value.length);
-// };
-
