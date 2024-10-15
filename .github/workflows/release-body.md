@@ -1,1 +1,1 @@
-file/folder can be created from the nav container not being over an explorer item
+type file fix
