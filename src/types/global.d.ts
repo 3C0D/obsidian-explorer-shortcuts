@@ -1,9 +1,3 @@
-declare module "obsidian" {
-    interface View {
-        file: TFile,
-    }
-}
-
 export interface ESSettings {
     delConfirmFile: boolean,
     delConfirmFolder: boolean,

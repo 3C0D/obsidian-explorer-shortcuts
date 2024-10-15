@@ -1,11 +1,11 @@
-import { Notice } from "obsidian";
+import { FileView, Notice } from "obsidian";
 import ExplorerShortcuts from "./main";
-import { 
-    getElPath, 
-    getExplorerFileItems, 
-    getNavFilesContainerItems, 
-    isNavFile, 
-    isNavFolder, 
+import {
+    getElPath,
+    getExplorerFileItems,
+    getNavFilesContainerItems,
+    isNavFile,
+    isNavFolder,
     isNavFolded,
     unfoldFileItemParentFolder,
     scrollToActiveEl,
@@ -15,18 +15,18 @@ import {
 export type NavigationDirection = 'up' | 'down';
 
 export async function navigateOverExplorer(
-    plugin: ExplorerShortcuts, 
+    plugin: ExplorerShortcuts,
     direction: NavigationDirection = 'down'
 ) {
     await ensureActiveElementVisible(plugin);
 
     const nextElement = getNextElement(plugin, direction);
-    
+
     if (!nextElement) {
         new Notice("End of list", 800);
         return;
     }
-    
+
     if (isNavFile(nextElement)) {
         await openNext(plugin, nextElement);
     }
@@ -38,13 +38,13 @@ async function ensureActiveElementVisible(plugin: ExplorerShortcuts): Promise<vo
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [path, _] = activeItem;
-    
+
     // Try to unfold parent folders twice to ensure visibility
     for (let i = 0; i < 2; i++) {
         const items = getExplorerFileItems(plugin);
         for (const [itemPath, item] of items) {
             if (path.startsWith(itemPath) && isNavFolded(item.el)) {
-                item.setCollapsed(false,false);
+                item.setCollapsed(false, false);
             }
         }
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -54,7 +54,7 @@ async function ensureActiveElementVisible(plugin: ExplorerShortcuts): Promise<vo
 }
 
 function getNextElement(
-    plugin: ExplorerShortcuts, 
+    plugin: ExplorerShortcuts,
     direction: NavigationDirection
 ): Element | undefined {
     let filteredList = getFilteredExplorerItems();
@@ -62,7 +62,7 @@ function getNextElement(
 
     let activeIndex = findActiveIndex(filteredList);
     if (activeIndex === -1) {
-        activeIndex = handleInactiveFile(plugin, filteredList);
+        activeIndex = handleInactiveFile(plugin);
         if (activeIndex === -1) return undefined;
         filteredList = getFilteredExplorerItems(); // Refresh list after changes
     }
@@ -71,45 +71,46 @@ function getNextElement(
 }
 
 function handleInactiveFile(
-    plugin: ExplorerShortcuts, 
-    filteredList: Element[]
+    plugin: ExplorerShortcuts,
 ): number {
     const items = getExplorerFileItems(plugin);
     const activeLeaf = plugin.app.workspace.getLeaf(false);
-    
-    if (!activeLeaf?.view.file) return -1;
+    activeLeaf
 
-    const activeFilePath = activeLeaf.view.file.path;
+    const file = (activeLeaf?.view as FileView).file;
+    if (!file) return -1;
+
+    const activeFilePath = file.path;
     const activeItem = items.find(item => item[0] === activeFilePath);
-    
+
     if (!activeItem) return -1;
 
     unfoldFileItemParentFolder(plugin, activeItem[1].el);
-    
+
     // Refresh the list after expanding
     const updatedList = getFilteredExplorerItems();
-    return updatedList.findIndex(el => 
+    return updatedList.findIndex(el =>
         el.children[0].classList.contains("is-active")
     );
 }
 
 function getFilteredExplorerItems(): Element[] {
     const elements = getNavFilesContainerItems();
-    return Array.from(elements).filter(element => 
-        !element.children[0].classList.contains("is-unsupported") && 
+    return Array.from(elements).filter(element =>
+        !element.children[0].classList.contains("is-unsupported") &&
         !element.classList.contains("mod-root")
     );
 }
 
 function findActiveIndex(elements: Element[]): number {
-    return elements.findIndex(el => 
+    return elements.findIndex(el =>
         el.children[0].classList.contains("is-active")
     );
 }
 
 function getNextIndex(
-    currentIndex: number, 
-    listLength: number, 
+    currentIndex: number,
+    listLength: number,
     direction: NavigationDirection
 ): number {
     if (direction === 'down') {
@@ -132,10 +133,10 @@ function findNextValidElement(
     while (isNavFolder(nextElement)) {
         if (isNavFolded(nextElement)) {
             const { newIndex, newList } = handleFoldedFolder(
-                plugin, 
-                nextElement, 
-                currentList, 
-                nextIndex, 
+                plugin,
+                nextElement,
+                currentList,
+                nextIndex,
                 direction
             );
             nextIndex = newIndex;
@@ -165,12 +166,12 @@ function handleFoldedFolder(
 
     let newIndex: number;
     if (direction === 'down') {
-        newIndex = added === 0 ? 
-            getNextIndex(currentIndex, newList.length, direction) : 
+        newIndex = added === 0 ?
+            getNextIndex(currentIndex, newList.length, direction) :
             folderIndex + 1;
     } else {
-        newIndex = added === 0 ? 
-            getNextIndex(currentIndex, newList.length, direction) : 
+        newIndex = added === 0 ?
+            getNextIndex(currentIndex, newList.length, direction) :
             folderIndex + added;
     }
 
@@ -178,7 +179,7 @@ function handleFoldedFolder(
 }
 
 export async function openNext(
-    plugin: ExplorerShortcuts, 
+    plugin: ExplorerShortcuts,
     next: Element | null
 ) {
     const path = getElPath(next);
