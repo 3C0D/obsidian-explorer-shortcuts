@@ -37,20 +37,14 @@ export async function keyUp(e: KeyboardEvent) {
     if (e.key === 'ArrowRight') {
         reveal(this)
     }
-
+    
     if (!this.elementFromPoint?.closest(".nav-files-container")) return;
-
+    
     if (e.key === 'ArrowUp') {
         await navigateOverExplorer(this, "up");
     }
     if (e.key === 'ArrowDown') {
         await navigateOverExplorer(this, "down");
-    }
-
-    if (!this.elementFromPoint?.closest(".tree-item")) return
-    if (e.key === 'r' || e.key === 'F2') {
-        this.renaming = true
-        await rename(this, e)
     }
     if (e.key === 'n') {
         await createNewItem(this, "file")
@@ -58,6 +52,18 @@ export async function keyUp(e: KeyboardEvent) {
     if (e.key === 'f') {
         await createNewItem(this, "folder")
     }
+    
+    if (!this.elementFromPoint?.closest(".tree-item")) return
+    if (e.key === 'r' || e.key === 'F2') {
+        this.renaming = true
+        await rename(this, e)
+    }
+    // if (e.key === 'n') {
+    //     await createNewItem(this, "file")
+    // }
+    // if (e.key === 'f') {
+    //     await createNewItem(this, "folder")
+    // }
     if (e.key === 'x') {
         cut(this)
     }

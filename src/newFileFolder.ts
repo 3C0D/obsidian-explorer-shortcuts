@@ -4,15 +4,27 @@ import { getElPath, getExplorerView, getHoveredElement } from "./utils";
 
 export async function createNewItem(plugin: ExplorerShortcuts, type: 'file' | 'folder') {
     const view = getExplorerView(plugin);
-    if (!view) return
-    const hovered = getHoveredElement(plugin)
-    const path = getElPath(hovered) || '/'
-    const hoveredItem = view.fileItems[path]
-    let file = hoveredItem.file
-    const kind = file instanceof TFile ? "file" : "folder";
-    if (kind === "file") {
-        const parentPath = file.parent?.path ?? "/"
-        file = this.app.vault.getAbstractFileByPath(parentPath)
+    if (!view) return;
+
+    const hovered = getHoveredElement(plugin);
+    const path = getElPath(hovered) || '/';
+
+    let targetFolder: TFolder;
+
+    if (path === '/') {
+        targetFolder = plugin.app.vault.getRoot();
+    } else {
+        const hoveredItem = view.fileItems[path];
+        const file = hoveredItem.file;
+
+        if (file instanceof TFile) {
+            targetFolder = file.parent || plugin.app.vault.getRoot();
+        } else if (file instanceof TFolder) {
+            targetFolder = file;
+        } else {
+            targetFolder = plugin.app.vault.getRoot();
+        }
     }
-    view.createAbstractFile(type, file as TFolder, true);
+
+    view.createAbstractFile(type, targetFolder, true);
 }
