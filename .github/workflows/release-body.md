@@ -1,1 +1,1 @@
-help scope increased
+help decription improved
