@@ -53,6 +53,9 @@ export async function keyUp(e: KeyboardEvent) {
     if (e.key === 'o') {
         await showInOsExplorer(this, true)
     }
+    if (e.key === 'h') {
+        showExplorerShortcutsModal(this.app);
+    }
 
     if (!this.elementFromPoint?.closest(".tree-item")) return
     if (e.key === 'r' || e.key === 'F2') {
@@ -74,9 +77,6 @@ export async function keyUp(e: KeyboardEvent) {
     }
     if (e.key === 'w') {
         await openInNewWindow(this);
-    }
-    if (e.key === 'h') {
-        showExplorerShortcutsModal(this.app);
     }
 }
 
