@@ -1,1 +1,1 @@
-open in system explorer added
+help scope increased
