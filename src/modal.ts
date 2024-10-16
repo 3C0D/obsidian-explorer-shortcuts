@@ -76,13 +76,14 @@ export function showExplorerShortcutsModal(app: App) {
         "F2 or R: Rename the selected file/folder",
         "N: Create a new file",
         "F: Create a new folder",
-        "X: Cut the selected file/folder",
-        "C: Copy the selected file/folder",
-        "Esc: Cancel all operations",
-        "V: Paste the cut or copied file/folder",
-        "Delete: Delete the selected file/folder",
+        "X: Cut the hovered file/folder",
+        "C: Copy the hovered file/folder",
+        "Esc: Cancel all cut/copy operations",
+        "V: Paste what have been marked as cut/copy",
+        "Delete: Delete the selected file/folder (with confirmation or not depending on settings)",
         "W: Open the hovered file in a new window",
-        "Shift + ?: Show this modal"
+		"O: Open the hovered file/folder/root in the system explorer",
+		"Ctrl+O: Over the editor open file/root(empty tab) in the system explorer.",
     ];
 
     const modal = new Modal(app);

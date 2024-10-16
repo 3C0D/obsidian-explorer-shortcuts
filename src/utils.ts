@@ -119,6 +119,10 @@ export const isOverExplorerNavContainer = (plugin: ExplorerShortcuts): Element |
     return leafContent || null;
 }
 
+export function isOverEditor(plugin: ExplorerShortcuts): Element | null {
+    return  plugin.elementFromPoint?.closest(".workspace-leaf.mod-active") ?? null
+}
+
 export function getExplorerLeaf(plugin: ExplorerShortcuts): FileExplorerLeaf | null {
     const { workspace } = plugin.app;
     return workspace.getLeavesOfType("file-explorer")?.first() ?? null;

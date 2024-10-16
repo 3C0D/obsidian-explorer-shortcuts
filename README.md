@@ -26,6 +26,8 @@ Press **h** while hovering over the file explorer to display a modal with a remi
 
 ## File/Folder Actions
 
+- **h**: Show a modal with a reminder of all available shortcuts.  
+  
 - **F2 or R**: Rename the selected file/folder.
 - **N**: Create a new file.
 - **F**: Create a new folder.
@@ -35,10 +37,13 @@ Press **h** while hovering over the file explorer to display a modal with a remi
 - **V**: Paste the cut or copied file/folder into the current folder. You can mix and paste multiple files/folders simultaneously.
 - **Delete**: Delete the selected file/folder. By default, a confirmation dialog is shown for folders, but not for files. Be careful not to accidentally press Delete while hovering over the explorer tree. To avoid this, enable both confirmations in the plugin settings. You can still use the default Obsidian Delete button after focusing on a file in the explorer.
 - **W**: Open the hovered file in a new window.
+- **O**: Open the hovered file/folder/root[^1] in the system explorer.
 
-## Other
+## Commands
 
-- **h**: Show a modal with a reminder of all available shortcuts.
+- Show in system explorer: Over the editor open file or root[^1](if empty tab) in the system explorer. Recommanded shortcut: **Ctrl+O**.
+
+
 
 ## Settings
 
@@ -91,3 +96,5 @@ This plugin uses a template that automates the development and publication proce
 ### Additional Features
 
 - **obsidian-typings**: This template automatically includes obsidian-typings, providing access to additional types not present in the official API.
+
+[^1]: The root folder is the root of the Obsidian vault.

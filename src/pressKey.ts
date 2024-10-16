@@ -8,6 +8,7 @@ import { reveal, toggleCollapse } from "./toggleCollapse";
 import { isOverExplorerNavContainer, getHoveredElement, getElPath } from "./utils";
 import ExplorerShortcuts from "./main";
 import { showExplorerShortcutsModal } from "./modal";
+import { showInOsExplorer } from "./showInOsExplorer";
 
 let goToUp = false // don't run up if not good key
 
@@ -37,9 +38,6 @@ export async function keyUp(e: KeyboardEvent) {
     if (e.key === 'ArrowRight') {
         reveal(this)
     }
-    
-    if (!this.elementFromPoint?.closest(".nav-files-container")) return;
-    
     if (e.key === 'ArrowUp') {
         await navigateOverExplorer(this, "up");
     }
@@ -52,18 +50,15 @@ export async function keyUp(e: KeyboardEvent) {
     if (e.key === 'f') {
         await createNewItem(this, "folder")
     }
-    
+    if (e.key === 'o') {
+        await showInOsExplorer(this, true)
+    }
+
     if (!this.elementFromPoint?.closest(".tree-item")) return
     if (e.key === 'r' || e.key === 'F2') {
         this.renaming = true
         await rename(this, e)
     }
-    // if (e.key === 'n') {
-    //     await createNewItem(this, "file")
-    // }
-    // if (e.key === 'f') {
-    //     await createNewItem(this, "folder")
-    // }
     if (e.key === 'x') {
         cut(this)
     }
@@ -78,13 +73,11 @@ export async function keyUp(e: KeyboardEvent) {
         triggerDelete(this, e)
     }
     if (e.key === 'w') {
-        const hoveredElement = getHoveredElement(this);
-        await openInNewWindow(this, hoveredElement);
+        await openInNewWindow(this);
     }
     if (e.key === 'h') {
         showExplorerShortcutsModal(this.app);
     }
-
 }
 
 export function keyDown(e: KeyboardEvent) {
@@ -102,23 +95,20 @@ export function keyDown(e: KeyboardEvent) {
 }
 
 function keysToBlock(key: string) {
-    const blockedKeysList = ['n', 'r', 'x', 'c', 'q', 'v', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'f', 'F2', 'Escape', 'Delete', 'w', 'h'];
+    const blockedKeysList = ['n', 'r', 'x', 'c', 'q', 'v', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'f', 'F2', 'Escape', 'Delete', 'w', 'h', 'o'];
     return blockedKeysList.includes(key);
 }
 
 
 async function openInNewWindow(
-    plugin: ExplorerShortcuts,
-    next: Element | null
-) {
-    const path = getElPath(next);
-    if (!path) return;
-
-    const item = plugin.app.vault.getFileByPath(path);
-    if (!item) return;
-
+    plugin: ExplorerShortcuts) {
+    let path = null
+    let item = null
+    const hoveredElement = getHoveredElement(this);
+    if (hoveredElement) {
+        path = getElPath(hoveredElement)
+        item = plugin.app.vault.getFileByPath(path);
+    }
     const newLeaf = plugin.app.workspace.getLeaf('window');
-    if (!newLeaf) return;
-
-    await newLeaf.openFile(item);
+    if (item) await newLeaf.openFile(item);
 }
