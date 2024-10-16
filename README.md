@@ -31,11 +31,11 @@ Press **h** while hovering over the file explorer to display a modal with a remi
 - **F2 or R**: Rename the selected file/folder.
 - **N**: Create a new file.
 - **F**: Create a new folder.
-- **X**: Cut the selected file/folder (Press again to cancel).
-- **C**: Copy the selected file/folder (Press again to cancel).
-- **Esc**: Cancel all operations.
-- **V**: Paste the cut or copied file/folder into the current folder. You can mix and paste multiple files/folders simultaneously.
-- **Delete**: Delete the selected file/folder. By default, a confirmation dialog is shown for folders, but not for files. Be careful not to accidentally press Delete while hovering over the explorer tree. To avoid this, enable both confirmations in the plugin settings. You can still use the default Obsidian Delete button after focusing on a file in the explorer.
+- **X**: Mark(color) the hovered file/folder as Cut (Press again to unmark).
+- **C**: Mark(color) the hovered file/folder as Copy (Press again to unmark).
+- **Esc**: Unmark all cut/copy.
+- **V**: Paste what have been marked as cut/copy to the hovered item (parent folder if file). You can mix and paste multiple files/folders simultaneously.
+- **Delete**: Delete the selected file/folder. By default, a confirmation dialog is shown for folders, but not for files. You can change this behavior in the plugin settings... You can still use the default Obsidian Delete after on a focused file.
 - **W**: Open the hovered file in a new window.
 - **O**: Open the hovered file/folder/root[^1] in the system explorer.
 
