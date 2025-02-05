@@ -19,11 +19,11 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
     //@ts-ignore
     tree.handleRenameFocusedItem(e)
 
-    // Attend un peu que l'élément éditable soit créé
     setTimeout(() => {
         const input = view.containerEl.querySelector('[contenteditable="true"]') as HTMLElement | null;
         if (!input) return;
 
+        // Utilise addEventListener au lieu de onblur
         input.addEventListener('blur', () => {
             plugin.renaming = false;
             hovered.firstElementChild?.classList.remove("has-focus");

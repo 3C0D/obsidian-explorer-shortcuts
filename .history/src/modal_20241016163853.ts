@@ -80,7 +80,7 @@ export function showExplorerShortcutsModal(app: App) {
         "C: mark(color) the hovered file/folder as copy (Press again to unmark)",
         "Esc: Cancel all cut/copy markings",
         "V: Paste what have been marked as cut/copy to the hovered item (parent folder if file)",
-        "Delete: Delete the hovered file/folder (with confirmation or not depending on settings)",
+        "Delete: Delete the selected file/folder (with confirmation or not depending on settings)",
         "W: Open the hovered file in a new window",
 		"O: Open the hovered file/folder/root in the system explorer",
 		"Ctrl+O: Over the editor open file/root(empty tab) in the system explorer.",

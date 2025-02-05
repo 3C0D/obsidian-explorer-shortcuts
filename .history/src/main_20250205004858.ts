@@ -13,7 +13,7 @@ export default class ExplorerShortcuts extends Plugin {
 	explorerfileContainer: Element | null = null;
 	explorerfolderContainer: Element | null = null;
 	renaming = false;
-	isEditingNewItem = false;
+	isEditingNewFile = false;
 	blockedKeys: Record<string, boolean> = {};
 	operation: Operation | null = null;
 

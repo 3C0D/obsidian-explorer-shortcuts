@@ -12,8 +12,8 @@ export default class ExplorerShortcuts extends Plugin {
 	elementFromPoint: Element | null = null;
 	explorerfileContainer: Element | null = null;
 	explorerfolderContainer: Element | null = null;
-	renaming = false;
-	isEditingNewItem = false;
+	renaming = false
+	
 	blockedKeys: Record<string, boolean> = {};
 	operation: Operation | null = null;
 

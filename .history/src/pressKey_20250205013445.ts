@@ -27,7 +27,7 @@ export async function keyUp(e: KeyboardEvent) {
         resetOperations(this)
     }
 
-    if (this.renaming || this.isEditingNewItem) {
+    if (this.renaming || this.isEditingNewFile) {
         this.blockedKeys = {}
         return
     }
@@ -84,7 +84,7 @@ export function keyDown(e: KeyboardEvent) {
     if (!isOverExplorerNavContainer(this)) return;
 
     if (this.renaming || this.isEditingNewItem) return
-
+    
     if (keysToBlock(e.key)) {
         e.preventDefault();
         this.blockedKeys[e.key] = true;

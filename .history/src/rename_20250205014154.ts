@@ -24,6 +24,7 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
         const input = view.containerEl.querySelector('[contenteditable="true"]') as HTMLElement | null;
         if (!input) return;
 
+        // Utilise addEventListener au lieu de onblur
         input.addEventListener('blur', () => {
             plugin.renaming = false;
             hovered.firstElementChild?.classList.remove("has-focus");

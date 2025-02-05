@@ -8,24 +8,19 @@ export async function deleteItem(plugin: ExplorerShortcuts, e: KeyboardEvent) {
     const view = getExplorerView(plugin);
     const tree = view?.tree;
     if (!tree) return;
-
+    
     const hovered = getHoveredElement(plugin)
     const path = getElPath(hovered) || '/'
     const hoveredItem = view.fileItems[path]
     if (!hoveredItem) return
-
     const itemFile = hoveredItem.file
     if (itemFile instanceof TFile && hoveredItem.el.children[0].classList.contains("has-focus")) return // to allow default obsidian delete
 
     if (plugin.settings.delConfirmFile && itemFile instanceof TFile) {
         confirmed = await getConfirmed(itemFile)
     } else if (plugin.settings.delConfirmFolder && itemFile instanceof TFolder) {
-        const isFolderEmpty = itemFile.children.length === 0;
-        if (!isFolderEmpty) {
-            confirmed = await getConfirmed(itemFile);
-        }
+        confirmed = await getConfirmed(itemFile)
     }
-
     if (!confirmed) return
 
     tree.selectItem(hoveredItem);

@@ -20,12 +20,9 @@ export async function deleteItem(plugin: ExplorerShortcuts, e: KeyboardEvent) {
     if (plugin.settings.delConfirmFile && itemFile instanceof TFile) {
         confirmed = await getConfirmed(itemFile)
     } else if (plugin.settings.delConfirmFolder && itemFile instanceof TFolder) {
-        const isFolderEmpty = itemFile.children.length === 0;
-        if (!isFolderEmpty) {
-            confirmed = await getConfirmed(itemFile);
-        }
+        confirmed = await getConfirmed(itemFile)
     }
-
+    
     if (!confirmed) return
 
     tree.selectItem(hoveredItem);
