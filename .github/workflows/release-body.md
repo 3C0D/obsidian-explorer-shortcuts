@@ -1,1 +1,1 @@
-shortcuts desactivated while renaming ok 
+open in window fixed
