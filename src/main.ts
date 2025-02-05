@@ -20,7 +20,7 @@ export default class ExplorerShortcuts extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new ESSettingTab(this.app, this));
-		this.app.workspace.onLayoutReady(this.onLayoutReady.bind(this));
+		this.app.workspace.onLayoutReady(this.registerDomEvents.bind(this));
 
 		this.addCommand({
 			id: "show-in-syst-explorer",
@@ -29,10 +29,6 @@ export default class ExplorerShortcuts extends Plugin {
 				await showInOsExplorer(this);
 			},
 		});
-	}
-
-	private onLayoutReady(): void {
-		this.registerDomEvents();
 	}
 
 	private registerDomEvents(): void {
