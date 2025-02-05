@@ -9,6 +9,7 @@ import { isOverExplorerNavContainer, getHoveredElement, getElPath } from "./util
 import ExplorerShortcuts from "./main";
 import { showExplorerShortcutsModal } from "./modal";
 import { showInOsExplorer } from "./showInOsExplorer";
+import { Notice, TFile } from "obsidian";
 
 let goToUp = false // don't run up if not good key
 
@@ -101,15 +102,24 @@ function keysToBlock(key: string) {
 }
 
 
-async function openInNewWindow(
-    plugin: ExplorerShortcuts) {
-    let path = null
-    let item = null
-    const hoveredElement = getHoveredElement(this);
-    if (hoveredElement) {
-        path = getElPath(hoveredElement)
-        item = plugin.app.vault.getFileByPath(path);
-    }
+async function openInNewWindow(plugin: ExplorerShortcuts) {
+    const hoveredElement = getHoveredElement(plugin);
+    if (!hoveredElement) return;
+    
+    const path = getElPath(hoveredElement);
+    if (!path) return;
+    
+    const file = plugin.app.vault.getAbstractFileByPath(path);
+    if (!(file instanceof TFile)) return;
+    
+    // Create a new window
     const newLeaf = plugin.app.workspace.getLeaf('window');
-    if (item) await newLeaf.openFile(item);
+    if (!newLeaf) return;
+    
+    // Open the file in the new window
+    try {
+        await newLeaf.openFile(file);
+    } catch (error) {
+        new Notice('Failed to open file in new window');
+    }
 }

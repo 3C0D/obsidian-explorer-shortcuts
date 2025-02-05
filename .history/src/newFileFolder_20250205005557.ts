@@ -36,7 +36,6 @@ export async function createNewItem(plugin: ExplorerShortcuts, type: 'file' | 'f
             
             // Add blur handler to reset the flag
             inlineTitleEl.addEventListener('blur', () => {
-                console.log('blur');
                 plugin.isEditingNewFile = false;
             }, { once: true });
         }

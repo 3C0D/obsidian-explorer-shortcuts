@@ -19,7 +19,7 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
     //@ts-ignore
     tree.handleRenameFocusedItem(e)
 
-    // Attend un peu que l'élément éditable soit créé
+    // Wait a little for the editable element to be created
     setTimeout(() => {
         const input = view.containerEl.querySelector('[contenteditable="true"]') as HTMLElement | null;
         if (!input) return;
@@ -27,9 +27,9 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
         input.addEventListener('blur', () => {
             plugin.renaming = false;
             hovered.firstElementChild?.classList.remove("has-focus");
-        }, { once: true }); // once: true garantit que le gestionnaire sera retiré après son exécution
+        }, { once: true }); // once: true guarantees that the listener will be removed after its execution
 
-        // Ajoute aussi un gestionnaire pour la touche Enter
+        // Also add a listener for the Enter key
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 plugin.renaming = false;
@@ -37,7 +37,7 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
             }
         }, { once: true });
 
-        // Sécurité: force la réinitialisation après un délai
+        // Security: force the reset after a delay
         setTimeout(() => {
             if (plugin.renaming) {
                 plugin.renaming = false;
