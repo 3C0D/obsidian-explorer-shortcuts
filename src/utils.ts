@@ -1,4 +1,4 @@
-import { FileExplorerLeaf, FileExplorerView, FileTreeItem, TreeItem } from "obsidian-typings";
+import { FileExplorerView, FileTreeItem, TreeItem } from "obsidian-typings";
 import ExplorerShortcuts from "./main";
 import * as path from "path";
 import { ElementType } from "./types/variables";
@@ -81,11 +81,11 @@ export function isFileItemCollapsed(item: [string, TreeItem<FileTreeItem>]): boo
     return el?.classList.contains("is-collapsed") ?? false;
 }
 
-export function getExplorerFileItems(plugin: ExplorerShortcuts): [string, TreeItem<FileTreeItem>][] {
-    const fileExplorerView = getExplorerLeaf(plugin)?.view;
-    if (!fileExplorerView || !fileExplorerView.fileItems) return [];
-    return Object.entries(fileExplorerView.fileItems) || [];
-}
+
+
+
+
+
 
 
 export function getActiveExplorerFileItem(plugin: ExplorerShortcuts): [string, TreeItem<FileTreeItem>] | null {
@@ -93,7 +93,7 @@ export function getActiveExplorerFileItem(plugin: ExplorerShortcuts): [string, T
     return activeItem;
 }
 
-// TODO: see the logic again. 
+// TODO: see the logic again.
 export function unfoldFileItemParentFolder(plugin: ExplorerShortcuts, element: Element | null): void {
     const dirPath = getElPath(element)
     const items = getExplorerFileItems(plugin)
@@ -123,14 +123,15 @@ export function isOverEditor(plugin: ExplorerShortcuts): Element | null {
     return  plugin.elementFromPoint?.closest(".workspace-leaf.mod-active") ?? null
 }
 
-export function getExplorerLeaf(plugin: ExplorerShortcuts): FileExplorerLeaf | null {
+export function getExplorerView(plugin: ExplorerShortcuts): FileExplorerView | null {
     const { workspace } = plugin.app;
-    return workspace.getLeavesOfType("file-explorer")?.first() ?? null;
+    return workspace.getLeavesOfType("file-explorer")?.first()?.view ?? null;
 }
 
-export function getExplorerView(plugin: ExplorerShortcuts): FileExplorerView | null {
-    const explorerLeaf = getExplorerLeaf(plugin);
-    return explorerLeaf ? explorerLeaf.view : null;
+export function getExplorerFileItems(plugin: ExplorerShortcuts): [string, TreeItem<FileTreeItem>][] {
+    const fileExplorerView = getExplorerView(plugin);
+    if (!fileExplorerView?.fileItems) return [];
+    return Object.entries(fileExplorerView.fileItems);
 }
 
 export function getActiveExplorerEl(plugin: ExplorerShortcuts): HTMLElement | null {
