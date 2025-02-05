@@ -1,1 +1,1 @@
-help decription improved
+shortcuts desactivated while renaming ok 
