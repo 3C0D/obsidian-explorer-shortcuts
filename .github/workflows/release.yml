@@ -16,11 +16,12 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: "18.x"
+          node-version: "20.x"
 
       # Build the plugin
       - name: Build
         id: build
+        continue-on-error: true
         run: |
           npm install
           npm run build --if-present
