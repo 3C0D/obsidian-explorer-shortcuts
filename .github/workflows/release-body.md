@@ -1,1 +1,1 @@
-open file in window fix
+fix: open file in new window
