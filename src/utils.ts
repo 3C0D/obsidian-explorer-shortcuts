@@ -123,9 +123,9 @@ export function isOverEditor(plugin: ExplorerShortcuts): Element | null {
     return  plugin.elementFromPoint?.closest(".workspace-leaf.mod-active") ?? null
 }
 
-export function getExplorerView(plugin: ExplorerShortcuts): FileExplorerView | null {
+export function getExplorerView(plugin: ExplorerShortcuts): FileExplorerView {
     const { workspace } = plugin.app;
-    return workspace.getLeavesOfType("file-explorer")?.first()?.view ?? null;
+    return workspace.getLeavesOfType("file-explorer")?.first()?.view as FileExplorerView;
 }
 
 export function getExplorerFileItems(plugin: ExplorerShortcuts): [string, TreeItem<FileTreeItem>][] {
