@@ -29,7 +29,8 @@ export async function deleteItem(plugin: ExplorerShortcuts, e: KeyboardEvent) {
     if (!confirmed) return
 
     tree.selectItem(hoveredItem);
-    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     tree.handleDeleteSelectedItems(e);
     const text = itemFile instanceof TFile ? "File" : "Folder"
     new Notice(`${text} removed: ` + itemFile.name, 3500)
@@ -44,6 +45,6 @@ export function triggerDelete(plugin: ExplorerShortcuts, evt: KeyboardEvent) {
     // trigger a mouse move event to refresh the selectedElements
     const e = new MouseEvent('mousemove', { clientX: plugin.mousePosition.x + 1, clientY: plugin.mousePosition.y + 1 });
     setTimeout(() => {
-        document.dispatchEvent(e);        
+        document.dispatchEvent(e);
     }, 70);
 }
