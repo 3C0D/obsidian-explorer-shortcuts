@@ -1,0 +1,1 @@
+updated obsidian-typings and fixed type for delete
