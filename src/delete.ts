@@ -29,8 +29,6 @@ export async function deleteItem(plugin: ExplorerShortcuts, e: KeyboardEvent) {
     if (!confirmed) return
 
     tree.selectItem(hoveredItem);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     tree.handleDeleteSelectedItems(e);
     const text = itemFile instanceof TFile ? "File" : "Folder"
     new Notice(`${text} removed: ` + itemFile.name, 3500)
