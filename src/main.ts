@@ -16,7 +16,8 @@ export default class ExplorerShortcuts extends Plugin {
 	isEditingNewItem = false;
 	blockedKeys: Record<string, boolean> = {};
 	operation: Operation | null = null;
-
+	taggedItems: Set<Element> | null = null;
+	
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new ESSettingTab(this.app, this));

@@ -81,13 +81,6 @@ export function isFileItemCollapsed(item: [string, TreeItem<FileTreeItem>]): boo
     return el?.classList.contains("is-collapsed") ?? false;
 }
 
-
-
-
-
-
-
-
 export function getActiveExplorerFileItem(plugin: ExplorerShortcuts): [string, TreeItem<FileTreeItem>] | null {
     const activeItem = getExplorerFileItems(plugin).find((item) => item[1].selfEl.classList.contains("is-active")) ?? null;
     return activeItem;

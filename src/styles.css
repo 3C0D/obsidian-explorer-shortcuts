@@ -1,11 +1,34 @@
 .copy {
-    background-color: rgb(142, 124, 108);
-    border-radius: 10%;
+    position: relative;
 }
 
 .cut {
-    background-color: rgb(144, 76, 115);
+    position: relative;
+}
+
+.copy::after,
+.cut::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
     border-radius: 10%;
+}
+
+.copy::after {
+    background-color: rgba(142, 124, 108, 0.7);
+}
+
+.cut::after {
+    background-color: rgba(144, 76, 115, 0.7);
+}
+
+.nav-file-title.is-active.copy,
+.nav-file-title.is-active.cut {
+    background-color: transparent !important;
 }
 
 /* @keyframes flash {
