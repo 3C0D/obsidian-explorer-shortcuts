@@ -29,6 +29,10 @@ export async function navigateOverExplorer(
 
     if (isNavFile(nextElement)) {
         await openNext(plugin, nextElement);
+    } else {
+        // Si c'est un dossier, on ne fait rien de plus
+        // Cela empêche le focus de passer à l'éditeur
+        await scrollToActiveEl(plugin);
     }
 }
 
@@ -44,7 +48,7 @@ async function ensureActiveElementVisible(plugin: ExplorerShortcuts): Promise<vo
         const items = getExplorerFileItems(plugin);
         for (const [itemPath, item] of items) {
             if (path.startsWith(itemPath) && isNavFolded(item.el)) {
-                item.setCollapsed(false, false);
+                item.setCollapsed(false, true);
             }
         }
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -193,4 +197,10 @@ export async function openNext(
 
     await activeLeaf.openFile(item);
     await scrollToActiveEl(plugin);
+    
+    // Remettre le focus sur l'explorateur de fichiers
+    const fileExplorer = plugin.app.workspace.getLeavesOfType("file-explorer")[0];
+    if (fileExplorer) {
+        plugin.app.workspace.setActiveLeaf(fileExplorer, { focus: true });
+    }
 }

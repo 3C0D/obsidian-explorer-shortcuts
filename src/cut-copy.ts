@@ -14,28 +14,29 @@ export function performOperation(plugin: ExplorerShortcuts, operation: Operation
         plugin.taggedItems = new Set<Element>();
     }
     
-    if (selectedItems.length > 1) {
-        selectedItems.forEach(item => plugin.taggedItems?.add(item));
-    } else {
-        const hovered = getHoveredElement(plugin);
-        if (hovered && plugin.taggedItems) {
-            if (plugin.taggedItems.has(hovered)) {
-                plugin.taggedItems.delete(hovered);
-            } else {
-                plugin.taggedItems.add(hovered);
-            }
-        }
-    }
+    const hovered = getHoveredElement(plugin);
     
-    const allItems = getNavFilesContainerItems();
-    allItems.forEach((item) => {
-        item.classList.remove('copy', 'cut');
-    });
-    
-    if (plugin.taggedItems) {
-        plugin.taggedItems.forEach(item => {
+    // Check if we're hovering over an item that's already tagged
+    if (hovered && plugin.taggedItems && plugin.taggedItems.has(hovered)) {
+        // Remove the item from tagged items if it's already there
+        plugin.taggedItems.delete(hovered);
+        hovered.classList.remove('copy', 'cut');
+    } else if (selectedItems.length > 1) {
+        // Add all selected items if there are multiple selections
+        selectedItems.forEach(item => {
+            plugin.taggedItems?.add(item);
+            // Remove any existing operation classes
+            item.classList.remove('copy', 'cut');
+            // Add the new operation class
             item.classList.add(operation);
         });
+    } else if (hovered && plugin.taggedItems) {
+        // Add the hovered item if it's not already tagged
+        plugin.taggedItems.add(hovered);
+        // Remove any existing operation classes
+        hovered.classList.remove('copy', 'cut');
+        // Add the new operation class
+        hovered.classList.add(operation);
     }
 }
 
