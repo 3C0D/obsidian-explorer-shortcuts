@@ -1,1 +1,1 @@
-.copy{background-color:#8e7c6c;border-radius:10%}.cut{background-color:#904c73;border-radius:10%}
+.copy,.cut{position:relative}.copy:after,.cut:after{content:"";position:absolute;inset:0;z-index:1000;border-radius:10%}.copy:after{background-color:#8e7c6cb3}.cut:after{background-color:#904c73b3}.nav-file-title.is-active.copy,.nav-file-title.is-active.cut{background-color:transparent!important}
