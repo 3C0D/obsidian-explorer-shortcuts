@@ -1,1 +1,1 @@
-cut and copy  improved. you can now select some files too with alt or shift alt and cut/copy them all. you can cumulate all ways selected files, hovered files and even cut and copy  
+cut and copy  improved. you can now select some files too with alt or shift alt and cut/copy them all. you can cumulate all ways selected files, hovered files and even cut and copy
