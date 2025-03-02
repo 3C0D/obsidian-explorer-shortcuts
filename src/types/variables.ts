@@ -8,7 +8,7 @@ export enum Operation {
 
 export const DEFAULT_SETTINGS: ESSettings = {
 	focusNeeded: true,
-	delConfirmFile: false,
+	delConfirmFile: true,
 	delConfirmFolder: true,
 };
 
