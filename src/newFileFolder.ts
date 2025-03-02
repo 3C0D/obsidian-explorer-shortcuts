@@ -36,11 +36,24 @@ export async function createNewItem(plugin: ExplorerShortcuts, type: 'file' | 'f
             const inlineTitleEl = document.querySelector('.inline-title');
             if (inlineTitleEl) {
                 clearInterval(checkForInlineTitle);
-                
+
                 // Add blur handler to reset the flag
                 inlineTitleEl.addEventListener('blur', () => {
                     plugin.isEditingNewItem = false;
+                    setTimeout(() => {
+                        const fileExplorer = plugin.app.workspace.getLeavesOfType("file-explorer")[0];
+                        if (fileExplorer) {
+                            plugin.app.workspace.setActiveLeaf(fileExplorer, { focus: true });
+                        }
+                    }, 100);
                 }, { once: true });
+
+                inlineTitleEl.addEventListener('keydown', (e) => {
+                    if ((e as KeyboardEvent).key === 'Enter') {
+                        e.preventDefault();
+                        (inlineTitleEl as HTMLElement).blur();
+                    }
+                });
             }
         }, 50);
     } else {

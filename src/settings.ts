@@ -24,7 +24,8 @@ export class ESSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Confirm before deleting folders (containing files)")
+			.setName("Confirm before deleting folders (only if not empty)")
+			.setDesc("A 'Confirm before deleting files' will be asked if the folder contains files")
 			.addToggle((t) =>
 				t
 					.setValue(this.plugin.settings.delConfirmFolder)
