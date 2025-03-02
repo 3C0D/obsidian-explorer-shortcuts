@@ -99,11 +99,11 @@ export function unfoldFileItemParentFolder(plugin: ExplorerShortcuts, element: E
     }
 }
 
-// Not used
-export function collapseAllExplorerFolders(plugin: ExplorerShortcuts, collapse = true): void {
-    const items = getExplorerFileItems(plugin);
-    items?.filter((item) => isNavFolder(item[1]?.el)).forEach(async (item) => await item[1].setCollapsed(collapse, true))
-}
+// Unused - can be commented out
+// export function collapseAllExplorerFolders(plugin: ExplorerShortcuts, collapse = true): void {
+//     const items = getExplorerFileItems(plugin);
+//     items?.filter((item) => isNavFolder(item[1]?.el)).forEach(async (item) => await item[1].setCollapsed(collapse, true))
+// }
 
 //////////// explorer ///////////////
 
@@ -162,48 +162,49 @@ export function blinkElement(el: HTMLElement, times: number, interval: number) {
     }, interval);
 }
 
-export function getExplorerItemPaths(item: [string, TreeItem<FileTreeItem>]) {
-    return item[0] || "";
-}
+// Unused - can be commented out
+// export function getExplorerItemPaths(item: [string, TreeItem<FileTreeItem>]) {
+//     return item[0] || "";
+// }
 
-// hmmm...
-export function unfoldAll(plugin: ExplorerShortcuts, path: string, fold = true) {
-    let parts = path.split("/");
-    if (!(parts.length > 1)) return
-    // All folders
-    const items = getExplorerFileItems(plugin).filter(item => isNavFolder(item[1].el))
-    if (!items) return
-    while (parts.length > 1) {
-        parts = parts.slice(0, parts.length - 1);
-        const parent = parts.join("/");
-        for (const item of items) {
-            if (item[0].includes(parent)) {
-                item[1].setCollapsed(fold, true)
-                break
-            }
-        }
-    }
-}
+// Unused - can be commented out
+// export function unfoldAll(plugin: ExplorerShortcuts, path: string, fold = true) {
+//     let parts = path.split("/");
+//     if (!(parts.length > 1)) return
+//     const items = getExplorerFileItems(plugin).filter(item => isNavFolder(item[1].el))
+//     if (!items) return
+//     while (parts.length > 1) {
+//         parts = parts.slice(0, parts.length - 1);
+//         const parent = parts.join("/");
+//         for (const item of items) {
+//             if (item[0].includes(parent)) {
+//                 item[1].setCollapsed(fold, true)
+//                 break
+//             }
+//         }
+//     }
+// }
 
-export function renameItem(plugin: ExplorerShortcuts, activePath: string) {
-    const view = getExplorerView(plugin);
-    if (!view) return
-    const hovered = getHoveredElement(plugin)
-    if (!hovered) return
-    const tree = view.tree;
-    if (!tree) return;
-    const path = activePath || '/'
-    const hoveredItem = view.fileItems[path]
-    if (!hoveredItem) return
-    tree.setFocusedItem(hoveredItem);
-    tree.handleRenameFocusedItem()
-    const input = view.containerEl.querySelector('[contenteditable="true"]') as HTMLInputElement | null;
-    if (!input) return
-    input.onblur = function () {
-        plugin.renaming = false
-        hovered.firstElementChild?.classList.remove("has-focus")
-    }
-}
+// Unused - can be commented out
+// export function renameItem(plugin: ExplorerShortcuts, activePath: string) {
+//     const view = getExplorerView(plugin);
+//     if (!view) return
+//     const hovered = getHoveredElement(plugin)
+//     if (!hovered) return
+//     const tree = view.tree;
+//     if (!tree) return;
+//     const path = activePath || '/'
+//     const hoveredItem = view.fileItems[path]
+//     if (!hoveredItem) return
+//     tree.setFocusedItem(hoveredItem);
+//     tree.handleRenameFocusedItem()
+//     const input = view.containerEl.querySelector('[contenteditable="true"]') as HTMLInputElement | null;
+//     if (!input) return
+//     input.onblur = function () {
+//         plugin.renaming = false
+//         hovered.firstElementChild?.classList.remove("has-focus")
+//     }
+// }
 
 
 // export function getActiveLeafPath(plugin: ExplorerShortcuts) {
