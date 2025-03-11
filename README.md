@@ -26,7 +26,7 @@ Press **h** while hovering over the file explorer to display a modal with a remi
 
 ## File/Folder Actions
 
-- **h**: Show a modal with a reminder of all available shortcuts.  
+- **H**: Show a modal with a reminder of all available shortcuts.  
   
 - **F2 or R**: Rename the selected file/folder.
 - **N**: Create a new file.
