@@ -84,6 +84,10 @@ export async function keyUp(e: KeyboardEvent) {
 export function keyDown(e: KeyboardEvent) {
     if (!isOverExplorerNavContainer(this)) return;
 
+    // Check if any modal is open
+    const isModalOpen = document.querySelector('.modal');
+    if (isModalOpen) return;
+
     if (this.renaming || this.isEditingNewItem) return
 
     if (keysToBlock(e.key)) {
