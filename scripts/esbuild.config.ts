@@ -1,0 +1,336 @@
+import esbuild from "esbuild";
+import process from "process";
+import builtins from "builtin-modules";
+import { config } from "dotenv";
+import path from "path";
+import { readFileSync } from "fs";
+import { rm } from "fs/promises";
+import fs from "fs";
+import { isValidPath, copyFilesToTargetDir, askQuestion, createReadlineInterface } from "./utils.js";
+
+// Determine the plugin directory (where the script is called from)
+const pluginDir = process.cwd();
+
+// Create readline interface for prompts
+const rl = createReadlineInterface();
+
+async function promptForVaultPath(envKey: string): Promise<string> {
+  const vaultType = envKey === "REAL_VAULT" ? "real" : "test";
+  const usage = envKey === "REAL_VAULT"
+    ? "for final plugin installation"
+    : "for development and testing";
+
+  console.log(`❓ ${envKey} path is required ${usage}`);
+  const path = await askQuestion(`📝 Enter your ${vaultType} vault path (or Ctrl+C to cancel): `, rl);
+
+  if (!path) {
+    console.log('❌ No path provided, exiting...');
+    process.exit(1);
+  }
+
+  return path;
+}
+
+async function promptForBothVaults(): Promise<void> {
+  console.log(`❓ Both vault paths are required for external development`);
+  console.log(`   TEST_VAULT: for development and testing (yarn dev)`);
+  console.log(`   REAL_VAULT: for final plugin installation (yarn real)`);
+
+  let confirmed = false;
+  while (!confirmed) {
+    const testPath = await askQuestion(`📝 Enter your test vault path: `, rl);
+    if (!testPath) {
+      console.log('❌ No test vault path provided, exiting...');
+      process.exit(1);
+    }
+
+    const realPath = await askQuestion(`📝 Enter your real vault path: `, rl);
+    if (!realPath) {
+      console.log('❌ No real vault path provided, exiting...');
+      process.exit(1);
+    }
+
+    // Show confirmation
+    console.log(`\n📋 Vault paths entered:`);
+    console.log(`   TEST_VAULT: ${testPath}`);
+    console.log(`   REAL_VAULT: ${realPath}`);
+
+    const confirm = await askQuestion(`✅ Are these paths correct? (y/n): `, rl);
+    if (confirm.toLowerCase() === 'y' || confirm.toLowerCase() === 'yes') {
+      await updateEnvFile("TEST_VAULT", testPath);
+      await updateEnvFile("REAL_VAULT", realPath);
+      confirmed = true;
+    } else {
+      console.log(`🔄 Let's try again...\n`);
+    }
+  }
+}
+
+async function updateEnvFile(envKey: string, vaultPath: string): Promise<void> {
+  const envPath = path.join(pluginDir, '.env');
+  let envContent = '';
+
+  // Read existing .env if it exists
+  try {
+    envContent = readFileSync(envPath, 'utf8');
+  } catch {
+    // File doesn't exist, start with empty content
+  }
+
+  // Update or add the variable
+  const regex = new RegExp(`^${envKey}=.*$`, 'm');
+  const newLine = `${envKey}=${vaultPath}`;
+
+  if (regex.test(envContent)) {
+    envContent = envContent.replace(regex, newLine);
+  } else {
+    envContent += envContent.endsWith('\n') ? '' : '\n';
+    envContent += newLine + '\n';
+  }
+
+  // Write back to .env
+  await import('fs').then(fs => fs.writeFileSync(envPath, envContent));
+  console.log(`✅ Updated ${envKey} in .env file`);
+}
+
+function validateVaultPath(vaultPath: string): boolean {
+  // Check if the path contains .obsidian directory
+  const obsidianPath = path.join(vaultPath, ".obsidian");
+  const pluginsPath = path.join(vaultPath, ".obsidian", "plugins");
+
+  return fs.existsSync(obsidianPath) && fs.existsSync(pluginsPath);
+}
+
+function getVaultPath(vaultPath: string): string {
+  // Validate that this is a proper vault path
+  if (!validateVaultPath(vaultPath)) {
+    console.error(`❌ Invalid vault path: ${vaultPath}`);
+    console.error(`   The path must contain a .obsidian/plugins directory`);
+    console.error(`   Please enter a valid Obsidian vault path`);
+    process.exit(1);
+  }
+
+  // Check if the path already contains the plugins directory path
+  const pluginsPath = path.join(".obsidian", "plugins");
+  if (vaultPath.includes(pluginsPath)) {
+    return path.join(vaultPath, manifest.id);
+  } else {
+    return path.join(vaultPath, ".obsidian", "plugins", manifest.id);
+  }
+}
+const manifestPath = path.join(pluginDir, "manifest.json");
+
+// Check if manifest exists (for plugin-config itself, it might not exist)
+if (!fs.existsSync(manifestPath)) {
+  console.log("⚠️  No manifest.json found - this script is designed for Obsidian plugins");
+  console.log("   If you're building plugin-config itself, use 'tsc' instead");
+  process.exit(0);
+}
+
+const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+
+config();
+
+const EXTERNAL_DEPS = [
+  "obsidian",
+  "electron",
+  "@codemirror/autocomplete",
+  "@codemirror/collab",
+  "@codemirror/commands",
+  "@codemirror/language",
+  "@codemirror/lint",
+  "@codemirror/search",
+  "@codemirror/state",
+  "@codemirror/view",
+  "@lezer/common",
+  "@lezer/highlight",
+  "@lezer/lr",
+  ...builtins
+];
+
+const BANNER = `/*
+THIS IS A GENERATED/BUNDLED FILE BY ESBUILD
+if you want to view the source, please visit the github repository of this plugin
+*/`;
+
+async function validateEnvironment(): Promise<void> {
+  const srcMainPath = path.join(pluginDir, "src/main.ts");
+  if (!await isValidPath(srcMainPath)) {
+    throw new Error("Invalid path for src/main.ts. main.ts must be in the src directory");
+  }
+  if (!await isValidPath(manifestPath)) {
+    throw new Error("Invalid path for manifest.json");
+  }
+}
+
+async function getBuildPath(isProd: boolean): Promise<string> {
+  // Check if we should use real vault (either -r flag or "real" argument)
+  const useRealVault = process.argv.includes("-r") || process.argv.includes("real");
+
+  // If production build without redirection, return plugin directory
+  if (isProd && !useRealVault) {
+    return pluginDir;
+  }
+
+  // Determine which path to use
+  const envKey = useRealVault ? "REAL_VAULT" : "TEST_VAULT";
+  const vaultPath = process.env[envKey]?.trim();
+
+  // Handle empty vault paths with intelligent logic
+  if (!vaultPath) {
+    // Check if we're in Obsidian plugins folder
+    const currentPath = process.cwd();
+    const isInObsidianPlugins = currentPath.includes('.obsidian/plugins') ||
+      currentPath.includes('.obsidian\\plugins');
+
+    const testVault = process.env.TEST_VAULT?.trim();
+    const realVault = process.env.REAL_VAULT?.trim();
+
+    // YARN REAL logic
+    if (envKey === "REAL_VAULT") {
+      if (!isInObsidianPlugins) {
+        // External development: ask for both if missing
+        if (!testVault || !realVault) {
+          await promptForBothVaults();
+          config();
+          // After updating both, get the REAL_VAULT path directly
+          const updatedRealVault = process.env.REAL_VAULT?.trim();
+          if (updatedRealVault) {
+            return getVaultPath(updatedRealVault);
+          }
+        } else {
+          const newPath = await promptForVaultPath(envKey);
+          await updateEnvFile(envKey, newPath);
+          config();
+          return getVaultPath(newPath);
+        }
+      } else {
+        // In obsidian/plugins: ask only for REAL_VAULT
+        const newPath = await promptForVaultPath(envKey);
+        await updateEnvFile(envKey, newPath);
+        return getVaultPath(newPath);
+      }
+    }
+
+    // YARN DEV/START logic
+    if (envKey === "TEST_VAULT") {
+      if (!isInObsidianPlugins) {
+        // External development: ask for both if missing
+        if (!testVault || !realVault) {
+          await promptForBothVaults();
+          config();
+          // After updating both, get the TEST_VAULT path directly
+          const updatedTestVault = process.env.TEST_VAULT?.trim();
+          if (updatedTestVault) {
+            return getVaultPath(updatedTestVault);
+          }
+        } else {
+          const newPath = await promptForVaultPath(envKey);
+          await updateEnvFile(envKey, newPath);
+          return getVaultPath(newPath);
+        }
+      } else {
+        // In obsidian/plugins: allow in-place development
+        console.log(`ℹ️  Building in Obsidian plugins folder (in-place development)`);
+        return pluginDir;
+      }
+    }
+  }
+
+  // If we reach here, use the vault path directly
+  return vaultPath ? getVaultPath(vaultPath) : pluginDir;
+}
+
+async function createBuildContext(buildPath: string, isProd: boolean, entryPoints: string[]): Promise<esbuild.BuildContext> {
+  return await esbuild.context({
+    banner: { js: BANNER },
+    minify: isProd,
+    entryPoints,
+    bundle: true,
+    external: EXTERNAL_DEPS,
+    format: "cjs",
+    target: "esNext",
+    platform: "node",
+    logLevel: "info",
+    sourcemap: isProd ? false : "inline",
+    treeShaking: true,
+    outdir: buildPath,
+    outbase: path.join(pluginDir, "src"),
+    plugins: [
+      // Plugin pour gérer les alias de chemin
+      {
+        name: "path-alias",
+        setup: (build): void => {
+          build.onResolve({ filter: /^@config\// }, (args) => {
+            const relativePath = args.path.replace(/^@config\//, "");
+            return {
+              path: path.resolve("../obsidian-plugin-config/src", relativePath)
+            };
+          });
+
+          build.onResolve({ filter: /^@config-scripts\// }, (args) => {
+            const relativePath = args.path.replace(/^@config-scripts\//, "");
+            return {
+              path: path.resolve("../obsidian-plugin-config/scripts", relativePath)
+            };
+          });
+        }
+      },
+      {
+        name: "copy-to-plugins-folder",
+        setup: (build): void => {
+          build.onEnd(async () => {
+            // if real or build
+            if (isProd) {
+              if (process.argv.includes("-r")) {
+                await copyFilesToTargetDir(buildPath);
+                console.log(`Successfully installed in ${buildPath}`);
+              } else {
+                const folderToRemove = path.join(buildPath, "_.._");
+                if (await isValidPath(folderToRemove)) {
+                  await rm(folderToRemove, { recursive: true });
+                }
+                console.log("Built done in initial folder");
+              }
+            }
+            // if watch (dev)
+            else {
+              await copyFilesToTargetDir(buildPath);
+            }
+          });
+        }
+      }
+    ]
+  });
+}
+
+async function main(): Promise<void> {
+  try {
+    await validateEnvironment();
+    const isProd = process.argv[2] === "production";
+    const buildPath = await getBuildPath(isProd);
+    console.log(buildPath === pluginDir
+      ? "Building in initial folder"
+      : `Building in ${buildPath}`);
+    const srcStylesPath = path.join(pluginDir, "src/styles.css");
+    const rootStylesPath = path.join(pluginDir, "styles.css");
+    const stylePath = await isValidPath(srcStylesPath) ? srcStylesPath : await isValidPath(rootStylesPath) ? rootStylesPath : "";
+    const mainTsPath = path.join(pluginDir, "src/main.ts");
+    const entryPoints = stylePath ? [mainTsPath, stylePath] : [mainTsPath];
+    const context = await createBuildContext(buildPath, isProd, entryPoints);
+
+    if (isProd) {
+      await context.rebuild();
+      rl.close();
+      process.exit(0);
+    } else {
+      await context.watch();
+    }
+  } catch (error) {
+    console.error("Build failed:", error);
+    rl.close();
+    process.exit(1);
+  }
+}
+
+main().catch(console.error);

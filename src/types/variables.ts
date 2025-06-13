@@ -1,4 +1,5 @@
-import { ESSettings } from "./global";
+import type { ESSettings } from "./global.js";
+
 
 export enum Operation {
     Copy = "copy",

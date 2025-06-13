@@ -1,7 +1,7 @@
-import { FileExplorerView, FileTreeItem, TreeItem } from "obsidian-typings";
-import ExplorerShortcuts from "./main";
+import type { FileExplorerView, FileTreeItem, FolderTreeItem } from "obsidian-typings";
+import ExplorerShortcuts from "./main.js";
 import * as path from "path";
-import { ElementType } from "./types/variables";
+import { ElementType } from "./types/variables.js";
 
 ///////// elements ////////
 
@@ -10,8 +10,8 @@ export function getElPath(element: Element | null): string {
     return element?.children[0]?.getAttribute("data-path") ?? element?.getAttribute("data-path") ?? "";
 }
 
-export function getHoveredElement(plugin: ExplorerShortcuts) {
-    return plugin.explorerfileContainer || plugin.explorerfolderContainer || null
+export function getHoveredElement(plugin: ExplorerShortcuts): Element | null {
+    return plugin.explorerfileContainer || plugin.explorerfolderContainer || null;
 }
 
 export function getEltFromMousePos(
@@ -45,17 +45,17 @@ export const isNavFolder = (element: Element | null): boolean =>
     hasClass(element, ElementType.Folder);
 
 
-export const isOverNavFile = (plugin: ExplorerShortcuts) => {
+export const isOverNavFile = (plugin: ExplorerShortcuts): Element | null => {
     return plugin.elementFromPoint?.closest(".nav-file") ?? null;
-}
+};
 
-export const isOverNavFolder = (plugin: ExplorerShortcuts) => {
+export const isOverNavFolder = (plugin: ExplorerShortcuts): Element | null => {
     return plugin.elementFromPoint?.closest(".nav-folder") ?? null;
-}
+};
 
-export const isOverNavFilesContainer = (plugin: ExplorerShortcuts) => {
+export const isOverNavFilesContainer = (plugin: ExplorerShortcuts): Element | null => {
     return plugin.elementFromPoint?.closest(".nav-files-container") ?? null;
-}
+};
 
 export function getNavFilesContainerItems(): NodeListOf<Element> {
     const elements = document.querySelectorAll(".nav-files-container .nav-file, .nav-files-container .nav-folder");
@@ -63,8 +63,8 @@ export function getNavFilesContainerItems(): NodeListOf<Element> {
 }
 
 export async function scrollToActiveEl(plugin: ExplorerShortcuts): Promise<void> {
-    return new Promise<void>((resolve) => {
-        setTimeout(() => {
+    return new Promise<void>((resolve): void => {
+        setTimeout((): void => {
             const activeEl = getActiveExplorerEl(plugin);
             if (!activeEl) return resolve();
             activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -76,25 +76,28 @@ export async function scrollToActiveEl(plugin: ExplorerShortcuts): Promise<void>
 
 ////////// fileItems ////////////////
 
-export function isFileItemCollapsed(item: [string, TreeItem<FileTreeItem>]): boolean {
+export function isFileItemCollapsed(item: [string, FileTreeItem]): boolean {
     const el = isNavFile(item[1].el) ? item[1].parent?.el : item[1].el;
     return el?.classList.contains("is-collapsed") ?? false;
 }
 
-export function getActiveExplorerFileItem(plugin: ExplorerShortcuts): [string, TreeItem<FileTreeItem>] | null {
+export function getActiveExplorerFileItem(plugin: ExplorerShortcuts): [string, FileTreeItem | FolderTreeItem] | null {
     const activeItem = getExplorerFileItems(plugin).find((item) => item[1].selfEl.classList.contains("is-active")) ?? null;
     return activeItem;
 }
 
 // TODO: see the logic again.
 export function unfoldFileItemParentFolder(plugin: ExplorerShortcuts, element: Element | null): void {
-    const dirPath = getElPath(element)
-    const items = getExplorerFileItems(plugin)
-    if (!items) return
+    const dirPath = getElPath(element);
+    const items = getExplorerFileItems(plugin);
+    if (!items) return;
     for (const item of items) {
         if (item[0].includes(dirPath)) {
-            item[1].setCollapsed(false, true)
-            break
+            // Only folders can be collapsed
+            if ('setCollapsed' in item[1]) {
+                item[1].setCollapsed(false, true);
+            }
+            break;
         }
     }
 }
@@ -110,10 +113,10 @@ export function unfoldFileItemParentFolder(plugin: ExplorerShortcuts, element: E
 export const isOverExplorerNavContainer = (plugin: ExplorerShortcuts): Element | null => {
     const leafContent = plugin.elementFromPoint?.closest(".workspace-leaf-content[data-type='file-explorer'] .nav-files-container");
     return leafContent || null;
-}
+};
 
 export function isOverEditor(plugin: ExplorerShortcuts): Element | null {
-    return  plugin.elementFromPoint?.closest(".workspace-leaf.mod-active") ?? null
+    return plugin.elementFromPoint?.closest(".workspace-leaf.mod-active") ?? null;
 }
 
 export function getExplorerView(plugin: ExplorerShortcuts): FileExplorerView {
@@ -121,7 +124,7 @@ export function getExplorerView(plugin: ExplorerShortcuts): FileExplorerView {
     return workspace.getLeavesOfType("file-explorer")?.first()?.view as FileExplorerView;
 }
 
-export function getExplorerFileItems(plugin: ExplorerShortcuts): [string, TreeItem<FileTreeItem>][] {
+export function getExplorerFileItems(plugin: ExplorerShortcuts): [string, FileTreeItem | FolderTreeItem][] {
     const fileExplorerView = getExplorerView(plugin);
     if (!fileExplorerView?.fileItems) return [];
     return Object.entries(fileExplorerView.fileItems);
@@ -129,29 +132,29 @@ export function getExplorerFileItems(plugin: ExplorerShortcuts): [string, TreeIt
 
 export function getActiveExplorerEl(plugin: ExplorerShortcuts): HTMLElement | null {
     const view = getExplorerView(plugin);
-    return view?.containerEl.querySelector('.is-active') ?? null
+    return view?.containerEl.querySelector('.is-active') ?? null;
 }
 
 
 ///////////////// other ////////////////
 
-export function getPathEls(_path: string) {
-    return { dir: path.dirname(_path), name: path.basename(_path, path.extname(_path)), ext: path.extname(_path) }
+export function getPathEls(_path: string): { dir: string; name: string; ext: string } {
+    return { dir: path.dirname(_path), name: path.basename(_path, path.extname(_path)), ext: path.extname(_path) };
 }
 
 
 ////////////////Annexe////////////////////////
 
-export async function blinkExplorerItem(item: [string, TreeItem<FileTreeItem>]) {
+export async function blinkExplorerItem(item: [string, FileTreeItem | FolderTreeItem]): Promise<void> {
     if (!item || !isNavFile(item[1].el)) return;
     const getFileEl = item[1].el.querySelector(".tree-item-self") as HTMLElement;
     blinkElement(getFileEl, 2, 500);
 }
 
-export function blinkElement(el: HTMLElement, times: number, interval: number) {
+export function blinkElement(el: HTMLElement, times: number, interval: number): void {
     let counter = 0;
 
-    const blinkInterval = setInterval(() => {
+    const blinkInterval = setInterval((): void => {
         el.classList.toggle("reveal");
         counter++;
 

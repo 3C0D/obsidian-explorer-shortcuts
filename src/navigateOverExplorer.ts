@@ -1,5 +1,5 @@
 import { FileView, Notice } from "obsidian";
-import ExplorerShortcuts from "./main";
+import ExplorerShortcuts from "./main.ts";
 import {
     getElPath,
     getExplorerFileItems,
@@ -10,14 +10,14 @@ import {
     unfoldFileItemParentFolder,
     scrollToActiveEl,
     getActiveExplorerFileItem
-} from "./utils";
+} from "./utils.ts";
 
 export type NavigationDirection = 'up' | 'down';
 
 export async function navigateOverExplorer(
     plugin: ExplorerShortcuts,
     direction: NavigationDirection = 'down'
-) {
+): Promise<void> {
     await ensureActiveElementVisible(plugin);
 
     const nextElement = getNextElement(plugin, direction);
@@ -48,7 +48,10 @@ async function ensureActiveElementVisible(plugin: ExplorerShortcuts): Promise<vo
         const items = getExplorerFileItems(plugin);
         for (const [itemPath, item] of items) {
             if (path.startsWith(itemPath) && isNavFolded(item.el)) {
-                item.setCollapsed(false, true);
+                // Only folders can be collapsed
+                if ('setCollapsed' in item) {
+                    item.setCollapsed(false, true);
+                }
             }
         }
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -79,7 +82,6 @@ function handleInactiveFile(
 ): number {
     const items = getExplorerFileItems(plugin);
     const activeLeaf = plugin.app.workspace.getLeaf(false);
-    activeLeaf
 
     const file = (activeLeaf?.view as FileView).file;
     if (!file) return -1;
@@ -185,7 +187,7 @@ function handleFoldedFolder(
 export async function openNext(
     plugin: ExplorerShortcuts,
     next: Element | null
-) {
+): Promise<void> {
     const path = getElPath(next);
     if (!path) return;
 
@@ -197,7 +199,7 @@ export async function openNext(
 
     await activeLeaf.openFile(item);
     await scrollToActiveEl(plugin);
-    
+
     // Remettre le focus sur l'explorateur de fichiers
     const fileExplorer = plugin.app.workspace.getLeavesOfType("file-explorer")[0];
     if (fileExplorer) {

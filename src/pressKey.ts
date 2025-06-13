@@ -1,22 +1,22 @@
-import { copy, cut, resetOperations } from "./cut-copy";
-import { deleteItem, triggerDelete } from "./delete";
-import { navigateOverExplorer } from "./navigateOverExplorer";
-import { createNewItem } from "./newFileFolder";
-import { paste } from "./paste";
-import { rename } from "./rename"
-import { reveal, toggleCollapse } from "./toggleCollapse";
-import { isOverExplorerNavContainer, getHoveredElement, getElPath } from "./utils";
-import ExplorerShortcuts from "./main";
-import { showExplorerShortcutsModal } from "./modal";
-import { showInOsExplorer } from "./showInOsExplorer";
+import { copy, cut, resetOperations } from "./cut-copy.js";
+import { deleteItem, triggerDelete } from "./delete.js";
+import { navigateOverExplorer } from "./navigateOverExplorer.js";
+import { createNewItem } from "./newFileFolder.js";
+import { paste } from "./paste.js";
+import { rename } from "./rename.js";
+import { reveal, toggleCollapse } from "./toggleCollapse.js";
+import { isOverExplorerNavContainer, getHoveredElement, getElPath } from "./utils.js";
+import ExplorerShortcuts from "./main.js";
+import { showExplorerShortcutsModal } from "./modal.js";
+import { showInOsExplorer } from "./showInOsExplorer.js";
 import { Notice, TFile } from "obsidian";
 
-let goToUp = false // don't run up if not good key
+let goToUp = false; // don't run up if not good key
 
-export async function keyUp(e: KeyboardEvent) {
+export async function keyUp(this: ExplorerShortcuts, e: KeyboardEvent): Promise<void> {
     if (!goToUp || !isOverExplorerNavContainer(this)) return;
 
-    const beingRenamed = this.elementFromPoint?.closest(".is-being-renamed")
+    const beingRenamed = this.elementFromPoint?.closest(".is-being-renamed");
 
     if (beingRenamed) {
         if (this.blockedKeys[e.key]) {
@@ -25,19 +25,19 @@ export async function keyUp(e: KeyboardEvent) {
     }
 
     if (e.key === 'Escape') {
-        resetOperations(this)
+        resetOperations(this);
     }
 
     if (this.renaming || this.isEditingNewItem) {
-        this.blockedKeys = {}
-        return
+        this.blockedKeys = {};
+        return;
     }
 
     if (e.key === 'ArrowLeft') {
-        toggleCollapse()
+        toggleCollapse();
     }
     if (e.key === 'ArrowRight') {
-        reveal(this)
+        reveal(this);
     }
     if (e.key === 'ArrowUp') {
         await navigateOverExplorer(this, "up");
@@ -46,49 +46,48 @@ export async function keyUp(e: KeyboardEvent) {
         await navigateOverExplorer(this, "down");
     }
     if (e.key === 'n') {
-        await createNewItem(this, "file")
+        await createNewItem(this, "file");
     }
     if (e.key === 'f') {
-        await createNewItem(this, "folder")
+        await createNewItem(this, "folder");
     }
     if (e.key === 'o') {
-        await showInOsExplorer(this, true)
+        await showInOsExplorer(this, true);
     }
     if (e.key === 'h') {
         showExplorerShortcutsModal(this.app);
     }
-
-    if (!this.elementFromPoint?.closest(".tree-item")) return
+    if (!this.elementFromPoint?.closest(".tree-item")) return;
     if (e.key === 'r' || e.key === 'F2') {
-        this.renaming = true
-        await rename(this, e)
+        this.renaming = true;
+        await rename(this, e);
     }
     if (e.key === 'x') {
-        cut(this)
+        cut(this);
     }
     if (e.key === 'c') {
-        copy(this)
+        copy(this);
     }
     if (e.key === 'v') {
-        await paste(this)
+        await paste(this);
     }
     if (e.key === 'Delete') {
-        await deleteItem(this, e)
-        triggerDelete(this, e)
+        await deleteItem(this, e);
+        triggerDelete(this, e);
     }
     if (e.key === 'w') {
         await openInNewWindow(this);
     }
 }
 
-export function keyDown(e: KeyboardEvent) {
+export function keyDown(this: ExplorerShortcuts, e: KeyboardEvent): void {
     if (!isOverExplorerNavContainer(this)) return;
 
     // Check if any modal is open
     const isModalOpen = document.querySelector('.modal');
     if (isModalOpen) return;
 
-    if (this.renaming || this.isEditingNewItem) return
+    if (this.renaming || this.isEditingNewItem) return;
 
     if (keysToBlock(e.key)) {
         e.preventDefault();
@@ -96,34 +95,33 @@ export function keyDown(e: KeyboardEvent) {
         goToUp = true;
     } else {
         goToUp = false;
-        return
+        return;
     }
 }
 
-function keysToBlock(key: string) {
+function keysToBlock(key: string): boolean {
     const blockedKeysList = ['n', 'r', 'x', 'c', 'q', 'v', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'f', 'F2', 'Escape', 'Delete', 'w', 'h', 'o'];
     return blockedKeysList.includes(key);
 }
 
-
-async function openInNewWindow(plugin: ExplorerShortcuts) {
+async function openInNewWindow(plugin: ExplorerShortcuts): Promise<void> {
     const hoveredElement = getHoveredElement(plugin);
     if (!hoveredElement) return;
-    
+
     const path = getElPath(hoveredElement);
     if (!path) return;
-    
+
     const file = plugin.app.vault.getAbstractFileByPath(path);
     if (!(file instanceof TFile)) return;
-    
+
     // Create a new window
     const newLeaf = plugin.app.workspace.getLeaf('window');
     if (!newLeaf) return;
-    
+
     // Open the file in the new window
     try {
         await newLeaf.openFile(file);
-    } catch (error) {
+    } catch {
         new Notice('Failed to open file in new window');
     }
 }

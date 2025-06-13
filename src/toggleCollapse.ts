@@ -1,8 +1,8 @@
-import ExplorerShortcuts from "./main";
+import ExplorerShortcuts from "./main.js";
 
 const REVEAL_TIMEOUT = 50;
 
-export function toggleCollapse() {
+export function toggleCollapse(): void {
     const collapseButton = document.querySelector('.nav-action-button[aria-label="Collapse all"]');
     const expandButton = document.querySelector('.nav-action-button[aria-label="Expand all"]');
     const button = collapseButton || expandButton;
@@ -16,7 +16,7 @@ export function toggleCollapse() {
 }
 
 // it also exist in the API revealInFolder. to see...
-export function reveal(plugin: ExplorerShortcuts) {
+export function reveal(plugin: ExplorerShortcuts): void {
     try {
         // run twice to ensure the file is revealed on long trees
         plugin.app.commands.executeCommandById(
@@ -27,7 +27,7 @@ export function reveal(plugin: ExplorerShortcuts) {
         );
 
         // Focus on active leaf after a short delay to ensure UI has updated
-        setTimeout(() => {
+        setTimeout((): void => {
             const activeLeaf = plugin.app.workspace.getLeaf(false);
             if (activeLeaf) {
                 plugin.app.workspace.setActiveLeaf(activeLeaf, { focus: true });

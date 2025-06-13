@@ -1,18 +1,41 @@
 import { normalizePath, TFile, TFolder, Notice, Modal, Setting, App } from "obsidian";
 import * as path from "path";
-import ExplorerShortcuts from "./main";
-import { getElPath, getExplorerFileItems, getHoveredElement, getPathEls } from "./utils";
-import { FileTreeItem, TreeItem } from "obsidian-typings";
-import { ConflictAction } from "./types/variables";
+import ExplorerShortcuts from "./main.js";
+import { getElPath, getExplorerFileItems, getHoveredElement, getPathEls } from "./utils.js";
+
+import { ConflictAction } from "./types/variables.js";
+import type { FileTreeItem, FolderTreeItem } from "obsidian-typings";
 
 let applyToAll = false;
 
-export async function paste(plugin: ExplorerShortcuts) {
+export async function paste(plugin: ExplorerShortcuts): Promise<void> {
     const items = getExplorerFileItems(plugin);
-    const selectedItems = items.filter(item => item[1].el.classList.contains("copy") || item[1].el.classList.contains("cut"));
+    let selectedItems = items.filter(item => item[1].el.classList.contains("copy") || item[1].el.classList.contains("cut"));
+
     if (!selectedItems.length) {
         new Notice("No items selected for paste operation");
         return;
+    }
+
+    // Filter out parent folders that contain selected files (same logic as in cut-copy.ts)
+    if (selectedItems.length > 1) {
+        const selectedFilePaths = selectedItems
+            .filter(item => !item[1].el.classList.contains("nav-folder"))
+            .map(item => item[0]);
+
+        if (selectedFilePaths.length > 0) {
+            selectedItems = selectedItems.filter(item => {
+                const isFolder = item[1].el.classList.contains("nav-folder");
+                if (isFolder) {
+                    // Only include folders that don't contain selected files
+                    const hasSelectedFilesInside = selectedFilePaths.some(filePath =>
+                        filePath.startsWith(item[0] + "/")
+                    );
+                    return !hasSelectedFilesInside;
+                }
+                return true; // Always include files
+            });
+        }
     }
 
     const destDir = getDestination(plugin) ?? "/";
@@ -20,32 +43,46 @@ export async function paste(plugin: ExplorerShortcuts) {
     try {
         applyToAll = false;
         const conflictingItems = await getConflictingItems(plugin, selectedItems, destDir);
-        
+
+        let globalAction: ConflictAction | null = null;
+
         for (const item of selectedItems) {
             const itemPath = item[0];
             const newPath = path.join(destDir, path.basename(itemPath));
             const operation = item[1].el.classList.contains("copy") ? "copy" : "cut";
-            
+
             let shouldReplace = false;
             if (conflictingItems.includes(itemPath)) {
-                if (!applyToAll) {
+                if (!applyToAll || globalAction === null) {
                     const action = await chooseAction(plugin.app, path.basename(itemPath), conflictingItems.length);
                     if (action === ConflictAction.Cancel) continue;
+
+                    if (applyToAll) {
+                        globalAction = action;
+                    }
+
                     shouldReplace = action === ConflictAction.Replace;
                 } else {
-                    shouldReplace = true;
+                    // Use the stored global action
+                    shouldReplace = globalAction === ConflictAction.Replace;
                 }
             }
-            
+
             await processItem(plugin, item, newPath, operation, shouldReplace);
         }
+
+        // Clear the tagged items after successful paste operation
+        if (plugin.taggedItems) {
+            plugin.taggedItems.clear();
+        }
+        plugin.operation = null;
     } catch (error) {
         console.error("Paste operation failed:", error);
         new Notice("Paste operation failed. Check console for details.");
     }
 }
 
-async function getConflictingItems(plugin: ExplorerShortcuts, items: [string, TreeItem<FileTreeItem>][], destDir: string): Promise<string[]> {
+async function getConflictingItems(plugin: ExplorerShortcuts, items: [string, FileTreeItem | FolderTreeItem][], destDir: string): Promise<string[]> {
     const conflictingItems: string[] = [];
     for (const item of items) {
         const newPath = path.join(destDir, path.basename(item[0]));
@@ -57,9 +94,11 @@ async function getConflictingItems(plugin: ExplorerShortcuts, items: [string, Tr
 }
 
 async function chooseAction(app: App, filename: string, conflictCount: number): Promise<ConflictAction> {
-    return new Promise((resolve) => {
+    return new Promise((resolve): void => {
         const modal = new Modal(app);
         modal.titleEl.textContent = `File "${filename}" already exists`;
+
+        let selectedAction = ConflictAction.Increment;
 
         new Setting(modal.contentEl)
             .setName("Choose Action")
@@ -68,9 +107,8 @@ async function chooseAction(app: App, filename: string, conflictCount: number): 
                     .addOption(ConflictAction.Increment, "Increment name")
                     .addOption(ConflictAction.Replace, "Replace existing")
                     .setValue(ConflictAction.Increment)
-                    .onChange((value: string) => {
-                        resolve(value as ConflictAction);
-                        modal.close();
+                    .onChange((value: string): void => {
+                        selectedAction = value as ConflictAction;
                     });
             });
 
@@ -80,7 +118,7 @@ async function chooseAction(app: App, filename: string, conflictCount: number): 
                 .addToggle((toggle) => {
                     toggle
                         .setValue(applyToAll)
-                        .onChange((value) => {
+                        .onChange((value): void => {
                             applyToAll = value;
                         });
                 });
@@ -89,8 +127,17 @@ async function chooseAction(app: App, filename: string, conflictCount: number): 
         new Setting(modal.contentEl)
             .addButton((btn) => {
                 btn
+                    .setButtonText("OK")
+                    .setCta()
+                    .onClick((): void => {
+                        resolve(selectedAction);
+                        modal.close();
+                    });
+            })
+            .addButton((btn) => {
+                btn
                     .setButtonText("Cancel")
-                    .onClick(() => {
+                    .onClick((): void => {
                         resolve(ConflictAction.Cancel);
                         modal.close();
                     });
@@ -101,12 +148,12 @@ async function chooseAction(app: App, filename: string, conflictCount: number): 
 }
 
 async function processItem(
-    plugin: ExplorerShortcuts, 
-    item: [string, TreeItem<FileTreeItem>], 
-    newPath: string, 
-    operation: "copy" | "cut", 
+    plugin: ExplorerShortcuts,
+    item: [string, FileTreeItem | FolderTreeItem],
+    newPath: string,
+    operation: "copy" | "cut",
     replace: boolean
-) {
+): Promise<void> {
     const itemPath = item[0];
 
     if (normalizePath(itemPath) === normalizePath(newPath)) {
@@ -131,20 +178,23 @@ async function processItem(
     }
 }
 
-async function safeCopy(plugin: ExplorerShortcuts, item: [string, TreeItem<FileTreeItem>], newPath: string, replace: boolean) {
-    if (item[1].file instanceof TFile) {
+async function safeCopy(plugin: ExplorerShortcuts, item: [string, FileTreeItem | FolderTreeItem], newPath: string, replace: boolean): Promise<void> {
+    const file = item[1].file;
+    if (file instanceof TFile) {
         if (replace) {
-            const content = await plugin.app.vault.adapter.read(item[1].file.path);
+            const content = await plugin.app.vault.adapter.read(file.path);
             await plugin.app.vault.adapter.write(newPath, content);
         } else {
-            await plugin.app.vault.copy(item[1].file, newPath);
+            await plugin.app.vault.copy(file, newPath);
         }
-    } else if (item[1].file instanceof TFolder) {
-        await safeCopyFolder(plugin, item[1].file, newPath, replace);
+    } else {
+        // It's a folder - use the file as TFolder
+        const folder = file as TFolder;
+        await safeCopyFolder(plugin, folder, newPath, replace);
     }
 }
 
-async function safeCopyFolder(plugin: ExplorerShortcuts, itemFile: TFolder, newPath: string, replace: boolean) {
+async function safeCopyFolder(plugin: ExplorerShortcuts, itemFile: TFolder, newPath: string, replace: boolean): Promise<void> {
     if (replace) {
         await plugin.app.vault.adapter.rmdir(newPath, true);
     }
@@ -160,7 +210,7 @@ async function safeCopyFolder(plugin: ExplorerShortcuts, itemFile: TFolder, newP
     }
 }
 
-async function safeCut(plugin: ExplorerShortcuts, item: [string, TreeItem<FileTreeItem>], newPath: string, replace: boolean) {
+async function safeCut(plugin: ExplorerShortcuts, item: [string, FileTreeItem | FolderTreeItem], newPath: string, replace: boolean): Promise<void> {
     if (item[1].file instanceof TFile) {
         if (replace) {
             await plugin.app.vault.adapter.remove(newPath);
@@ -180,7 +230,13 @@ export function getDestination(plugin: ExplorerShortcuts, dir = false): string |
 
 function incrementName(plugin: ExplorerShortcuts, type: 'file' | 'folder', destPath: string): string {
     const { dir, name, ext } = getPathEls(destPath);
-    const basePath = dir === "." ? "" : dir + "/";
+
+    // Fix the basePath construction - handle root directory properly
+    let basePath = "";
+    if (dir && dir !== "." && dir !== "/") {
+        basePath = dir.endsWith("/") ? dir : dir + "/";
+    }
+
     const baseNewName = name || "Untitled";
     const newExt = type === 'file' ? (ext || ".md") : "";
 
