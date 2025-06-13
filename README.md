@@ -6,7 +6,7 @@ A plugin for Obsidian that enhances file navigation and manipulation in the expl
 
 - **Efficient Copy/Cut and Paste**: Files and folders are highlighted when copied or cut, allowing you to navigate directly to the destination for pasting without dragging or using complex context menus. When pasting, you can choose to increment the name or replace the existing file/folder if a conflict occurs.
 - **Explorer-Editor Synergy**: Use arrow keys to browse files in the explorer, automatically displaying them in the editor. Right/left arrows reveal or collapse folders, enhancing file structure visualization.
-- **One-Key Actions**: Perform common file operations (rename, create, delete) with single key presses.
+- **One-Key Actions**: Perform common file operations (copy, cut, paste, rename, delete...) with single key presses.
 
 ## Quick Help
 
@@ -26,7 +26,7 @@ Press **h** while hovering over the file explorer to display a modal with a remi
 
 ## File/Folder Actions
 
-- **h**: Show a modal with a reminder of all available shortcuts.  
+- **H**: Show a modal with a reminder of all available shortcuts.  
   
 - **F2 or R**: Rename the selected file/folder.
 - **N**: Create a new file.
