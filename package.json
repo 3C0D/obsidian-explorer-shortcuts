@@ -1,6 +1,6 @@
 {
 	"name": "explorer-shortcuts",
-	"version": "1.4.2",
+	"version": "1.4.3",
 	"description": "Open successive files navigating with arrows ↑↓ over the explorer and use shortcuts for current actions on files/folders (cut, paste, copy, rename, delete, etc).",
 	"main": "main.js",
 	"scripts": {
