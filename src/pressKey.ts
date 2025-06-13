@@ -34,7 +34,7 @@ export async function keyUp(this: ExplorerShortcuts, e: KeyboardEvent): Promise<
     }
 
     if (e.key === 'ArrowLeft') {
-        toggleCollapse();
+        toggleCollapse(this);
     }
     if (e.key === 'ArrowRight') {
         reveal(this);

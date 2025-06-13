@@ -14,10 +14,46 @@ import {
 
 export type NavigationDirection = 'up' | 'down';
 
+// Throttling for smooth navigation
+let lastNavigationTime = 0;
+const NAVIGATION_THROTTLE = 200; // 200ms minimum between navigations
+
+// Debounce for mouse movement simulation
+let mouseMoveDebounceTimer: NodeJS.Timeout | null = null;
+const MOUSE_MOVE_DEBOUNCE = 500; // Wait 500ms after last navigation before triggering mouse move
+
+/**
+ * Trigger a mouse move event to refresh the hover state with debounce
+ * Only triggers after navigation has stopped for a while
+ */
+function triggerMouseMoveForNavigation(plugin: ExplorerShortcuts): void {
+    // Clear existing timer
+    if (mouseMoveDebounceTimer) {
+        clearTimeout(mouseMoveDebounceTimer);
+    }
+
+    // Set new timer to trigger mouse move after debounce period
+    mouseMoveDebounceTimer = setTimeout(() => {
+        const e = new MouseEvent('mousemove', {
+            clientX: plugin.mousePosition.x + 1,
+            clientY: plugin.mousePosition.y + 1
+        });
+        document.dispatchEvent(e);
+        mouseMoveDebounceTimer = null;
+    }, MOUSE_MOVE_DEBOUNCE);
+}
+
 export async function navigateOverExplorer(
     plugin: ExplorerShortcuts,
     direction: NavigationDirection = 'down'
 ): Promise<void> {
+    // Throttle navigation for smooth experience
+    const currentTime = Date.now();
+    if (currentTime - lastNavigationTime < NAVIGATION_THROTTLE) {
+        return; // Skip if too soon after last navigation
+    }
+    lastNavigationTime = currentTime;
+
     await ensureActiveElementVisible(plugin);
 
     const nextElement = getNextElement(plugin, direction);
@@ -34,6 +70,9 @@ export async function navigateOverExplorer(
         // Cela empêche le focus de passer à l'éditeur
         await scrollToActiveEl(plugin);
     }
+
+    // Trigger mouse move to refresh hover state and prevent navigation from "cutting out"
+    triggerMouseMoveForNavigation(plugin);
 }
 
 async function ensureActiveElementVisible(plugin: ExplorerShortcuts): Promise<void> {
@@ -184,6 +223,33 @@ function handleFoldedFolder(
     return { newIndex, newList };
 }
 
+/**
+ * Remove the focus (has-focus class) from all elements in the explorer
+ * This removes the annoying selection circle/rectangle
+ */
+function removeFocusFromExplorer(): void {
+    const focusedElements = document.querySelectorAll('.nav-file-title.has-focus, .nav-folder-title.has-focus');
+    focusedElements.forEach(el => {
+        el.classList.remove('has-focus');
+    });
+}
+
+/**
+ * Reveal the active file in the explorer (like the reveal function but without focus change)
+ */
+async function revealActiveFile(plugin: ExplorerShortcuts): Promise<void> {
+    try {
+        // Run the reveal command twice to ensure it works on long trees
+        plugin.app.commands.executeCommandById("file-explorer:reveal-active-file");
+        plugin.app.commands.executeCommandById("file-explorer:reveal-active-file");
+
+        // Wait a bit for the reveal to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+    } catch (error) {
+        console.error("Failed to reveal active file:", error);
+    }
+}
+
 export async function openNext(
     plugin: ExplorerShortcuts,
     next: Element | null
@@ -197,7 +263,22 @@ export async function openNext(
     const activeLeaf = plugin.app.workspace.getLeaf(false);
     if (!activeLeaf) return;
 
+    // Remove any existing focus before opening
+    removeFocusFromExplorer();
+
+    // Start scrolling early for smoother experience
+    scrollToActiveEl(plugin);
+
+    // Open the file
     await activeLeaf.openFile(item);
+
+    // Shorter wait for faster response
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Reveal the file in explorer to sync the selection
+    await revealActiveFile(plugin);
+
+    // Scroll again after reveal to ensure proper positioning
     await scrollToActiveEl(plugin);
 
     // Remettre le focus sur l'explorateur de fichiers

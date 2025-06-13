@@ -2,7 +2,7 @@ import ExplorerShortcuts from "./main.js";
 
 const REVEAL_TIMEOUT = 50;
 
-export function toggleCollapse(): void {
+export function toggleCollapse(plugin: ExplorerShortcuts): void {
     const collapseButton = document.querySelector('.nav-action-button[aria-label="Collapse all"]');
     const expandButton = document.querySelector('.nav-action-button[aria-label="Expand all"]');
     const button = collapseButton || expandButton;
@@ -10,9 +10,20 @@ export function toggleCollapse(): void {
     if (button) {
         const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
         button.dispatchEvent(clickEvent);
+
+        // Trigger a mouse move event to refresh the hover state
+        triggerMouseMove(plugin);
     } else {
         console.warn("Toggle collapse/expand button not found");
     }
+}
+
+export function triggerMouseMove(plugin: ExplorerShortcuts): void {
+    // Trigger a mouse move event to refresh the selectedElements
+    const e = new MouseEvent('mousemove', { clientX: plugin.mousePosition.x + 1, clientY: plugin.mousePosition.y + 1 });
+    setTimeout(() => {
+        document.dispatchEvent(e);
+    }, 70);
 }
 
 // it also exist in the API revealInFolder. to see...
