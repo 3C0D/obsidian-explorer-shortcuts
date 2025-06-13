@@ -1,1 +1,1 @@
-injected with plugin config. Lot of fixes
+navigation improved (down)
