@@ -68,12 +68,14 @@ export const isValidPath = async (pathToCheck: string): Promise<boolean> => {
 };
 
 export async function copyFilesToTargetDir(buildPath: string): Promise<void> {
+  const pluginDir = process.cwd();
+  const manifestSrc = path.join(pluginDir, "manifest.json");
   const manifestDest = path.join(buildPath, "manifest.json");
   const cssDest = path.join(buildPath, "styles.css");
   const folderToRemove = path.join(buildPath, "_.._");
 
   try {
-    await mkdir(buildPath);
+    await mkdir(buildPath, { recursive: true });
   } catch (error: any) {
     if (error.code !== "EEXIST") {
       console.error(`Error creating directory: ${error.message}`);
@@ -82,20 +84,23 @@ export async function copyFilesToTargetDir(buildPath: string): Promise<void> {
 
   // Copy manifest
   try {
-    await copyFile("./manifest.json", manifestDest);
+    await copyFile(manifestSrc, manifestDest);
   } catch (error: any) {
     console.error(`Error copying manifest: ${error.message}`);
   }
 
   // Copy CSS
   try {
+    const srcStylesPath = path.join(pluginDir, "src/styles.css");
+    const rootStylesPath = path.join(pluginDir, "styles.css");
+
     // First check if CSS exists in src/styles.css
-    if (await isValidPath("./src/styles.css")) {
-      await copyFile("./src/styles.css", cssDest);
+    if (await isValidPath(srcStylesPath)) {
+      await copyFile(srcStylesPath, cssDest);
     }
     // Otherwise, check if it exists in the root
-    else if (await isValidPath("./styles.css")) {
-      await copyFile("./styles.css", cssDest);
+    else if (await isValidPath(rootStylesPath)) {
+      await copyFile(rootStylesPath, cssDest);
       if (await isValidPath(folderToRemove)) {
         await rm(folderToRemove, { recursive: true });
       }
