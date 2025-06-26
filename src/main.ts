@@ -4,7 +4,6 @@ import { ESSettingTab } from "./settings.js";
 import { keyDown, keyUp } from "./pressKey.js";
 import { getEltFromMousePos, isOverExplorerNavContainer, isOverNavFile, isOverNavFolder } from "./utils.js";
 import type { ESSettings } from "./types/global.js";
-import { showInOsExplorer } from "./showInOsExplorer.js";
 
 export default class ExplorerShortcuts extends Plugin {
 	settings: ESSettings;
@@ -23,14 +22,6 @@ export default class ExplorerShortcuts extends Plugin {
 		await this.loadSettings();
 		this.addSettingTab(new ESSettingTab(this.app, this));
 		this.app.workspace.onLayoutReady(this.registerDomEvents.bind(this));
-
-		this.addCommand({
-			id: "show-in-syst-explorer",
-			name: "Show in system explorer",
-			callback: async (): Promise<void> => {
-				await showInOsExplorer(this);
-			},
-		});
 	}
 
 	private registerDomEvents(): void {

@@ -1,21 +1,16 @@
-import { FileView } from "obsidian";
 import ExplorerShortcuts from "./main.js";
-import { getElPath, getHoveredElement, isOverEditor } from "./utils.js";
+import { getElPath, getHoveredElement } from "./utils.js";
 import * as path from "path";
 
 export async function showInOsExplorer(plugin: ExplorerShortcuts, isOverExplorerNavContainer = false): Promise<void> {
+    if (!isOverExplorerNavContainer) return;
+
     let path = "/";
-    if (isOverExplorerNavContainer) {
-        const hoveredElement = getHoveredElement(plugin);
-        if (hoveredElement) {
-            path = getElPath(hoveredElement);
-        }
-    } else if (isOverEditor(plugin)) {
-        const activeLeaf = plugin.app.workspace.getLeaf(false);
-        if (activeLeaf) {
-            path = (activeLeaf.view as FileView).file?.path || "/";
-        }
-    } else return;
+    const hoveredElement = getHoveredElement(plugin);
+    if (hoveredElement) {
+        path = getElPath(hoveredElement);
+    }
+
     openDirectoryInFileManager.call(plugin, path);
 }
 

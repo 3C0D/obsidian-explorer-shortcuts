@@ -83,7 +83,6 @@ export function showExplorerShortcutsModal(app: App): void {
 		"Delete: Delete the hovered file/folder (with confirmation or not depending on settings)",
 		"W: Open the hovered file in a new window",
 		"O: Open the hovered file/folder/root in the system explorer",
-		"Ctrl+O: Over the editor open file/root(empty tab) in the system explorer.",
 	];
 
 	const modal = new Modal(app);
