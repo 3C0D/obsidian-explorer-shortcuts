@@ -1,1 +1,1 @@
-injection update
+removed useless command and shortcut in help
