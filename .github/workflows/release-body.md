@@ -1,1 +1,1 @@
-removed useless command and shortcut in help
+Now you have to presse space with some shortcut space+c +v +x +r... arrows delete esc stay the same
