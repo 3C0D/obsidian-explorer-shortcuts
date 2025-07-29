@@ -14,7 +14,15 @@ import { Notice, TFile } from "obsidian";
 let goToUp = false; // don't run up if not good key
 
 export async function keyUp(this: ExplorerShortcuts, e: KeyboardEvent): Promise<void> {
-    if (!goToUp || !isOverExplorerNavContainer(this)) return;
+    // Clear pending Space combinations when not over explorer
+    if (!isOverExplorerNavContainer(this)) {
+        this.pendingSpaceCombos = {};
+        this.spacePressed = false;
+    }
+
+    if (!goToUp || !isOverExplorerNavContainer(this)) {
+        return;
+    }
 
     const beingRenamed = this.elementFromPoint?.closest(".is-being-renamed");
 
@@ -26,10 +34,15 @@ export async function keyUp(this: ExplorerShortcuts, e: KeyboardEvent): Promise<
 
     if (e.key === 'Escape') {
         resetOperations(this);
+        // Clear pending Space combinations
+        this.pendingSpaceCombos = {};
+        this.spacePressed = false;
     }
 
     if (this.renaming || this.isEditingNewItem) {
         this.blockedKeys = {};
+        this.pendingSpaceCombos = {};
+        this.spacePressed = false;
         return;
     }
 
@@ -45,38 +58,57 @@ export async function keyUp(this: ExplorerShortcuts, e: KeyboardEvent): Promise<
     if (e.key === 'ArrowDown') {
         await navigateOverExplorer(this, "down");
     }
-    if (e.key === 'n') {
-        await createNewItem(this, "file");
-    }
-    if (e.key === 'f') {
-        await createNewItem(this, "folder");
-    }
-    if (e.key === 'o') {
-        await showInOsExplorer(this, true);
-    }
-    if (e.key === 'h') {
-        showExplorerShortcutsModal(this.app);
+    // Handle Space combinations - only if we're over explorer
+    if (isOverExplorerNavContainer(this)) {
+        if (e.key === 'n' && this.pendingSpaceCombos['n']) {
+            this.pendingSpaceCombos['n'] = false;
+            await createNewItem(this, "file");
+        }
+        if (e.key === 'f' && this.pendingSpaceCombos['f']) {
+            this.pendingSpaceCombos['f'] = false;
+            await createNewItem(this, "folder");
+        }
+        if (e.key === 'o' && this.pendingSpaceCombos['o']) {
+            this.pendingSpaceCombos['o'] = false;
+            await showInOsExplorer(this, true);
+        }
+        if (e.key === 'h' && this.pendingSpaceCombos['h']) {
+            this.pendingSpaceCombos['h'] = false;
+            showExplorerShortcutsModal(this.app);
+        }
     }
     if (!this.elementFromPoint?.closest(".tree-item")) return;
-    if (e.key === 'r' || e.key === 'F2') {
-        this.renaming = true;
-        await rename(this, e);
-    }
-    if (e.key === 'x') {
-        cut(this);
-    }
-    if (e.key === 'c') {
-        copy(this);
-    }
-    if (e.key === 'v') {
-        await paste(this);
+
+    // Handle Space combinations that require tree-item - only if we're over explorer
+    if (isOverExplorerNavContainer(this)) {
+        if ((e.key === 'r' && this.pendingSpaceCombos['r']) || e.key === 'F2') {
+            if (e.key === 'r') this.pendingSpaceCombos['r'] = false;
+            this.renaming = true;
+            await rename(this, e);
+        }
+        if (e.key === 'x') {
+            cut(this);
+        }
+        if (e.key === 'c') {
+            copy(this);
+        }
+        if (e.key === 'v' && this.pendingSpaceCombos['v']) {
+            this.pendingSpaceCombos['v'] = false;
+            await paste(this);
+        }
+        if (e.key === 'w' && this.pendingSpaceCombos['w']) {
+            this.pendingSpaceCombos['w'] = false;
+            await openInNewWindow(this);
+        }
     }
     if (e.key === 'Delete') {
         await deleteItem(this, e);
         triggerDelete(this, e);
     }
-    if (e.key === 'w') {
-        await openInNewWindow(this);
+
+    // Reset space state when space is released
+    if (e.key === ' ') {
+        this.spacePressed = false;
     }
 }
 
@@ -89,7 +121,17 @@ export function keyDown(this: ExplorerShortcuts, e: KeyboardEvent): void {
 
     if (this.renaming || this.isEditingNewItem) return;
 
-    if (keysToBlock(e.key)) {
+    // Track space key state
+    if (e.key === ' ') {
+        this.spacePressed = true;
+    }
+
+    // Detect Space combinations and mark them as pending
+    if (this.spacePressed && ['n', 'f', 'r', 'v', 'w', 'h', 'o'].includes(e.key)) {
+        this.pendingSpaceCombos[e.key] = true;
+    }
+
+    if (keysToBlock(e.key, this.spacePressed)) {
         e.preventDefault();
         this.blockedKeys[e.key] = true;
         goToUp = true;
@@ -99,9 +141,14 @@ export function keyDown(this: ExplorerShortcuts, e: KeyboardEvent): void {
     }
 }
 
-function keysToBlock(key: string): boolean {
-    const blockedKeysList = ['n', 'r', 'x', 'c', 'q', 'v', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'f', 'F2', 'Escape', 'Delete', 'w', 'h', 'o'];
-    return blockedKeysList.includes(key);
+function keysToBlock(key: string, spacePressed: boolean): boolean {
+    // Keys that always block (no Space needed)
+    const alwaysBlockedKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F2', 'Escape', 'Delete', 'x', 'c', ' '];
+
+    // Keys that only block when Space is pressed
+    const spaceBlockedKeys = ['n', 'r', 'v', 'f', 'w', 'h', 'o'];
+
+    return alwaysBlockedKeys.includes(key) || (spacePressed && spaceBlockedKeys.includes(key));
 }
 
 async function openInNewWindow(plugin: ExplorerShortcuts): Promise<void> {

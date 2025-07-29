@@ -14,6 +14,8 @@ export default class ExplorerShortcuts extends Plugin {
 	renaming = false;
 	isEditingNewItem = false;
 	blockedKeys: Record<string, boolean> = {};
+	pendingSpaceCombos: Record<string, boolean> = {};
+	spacePressed = false;
 	operation: Operation | null = null;
 	taggedItems: Set<Element> | null = null;
 

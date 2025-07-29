@@ -10,7 +10,7 @@ A plugin for Obsidian that enhances file navigation and manipulation in the expl
 
 ## Quick Help
 
-Press **h** while hovering over the file explorer to display a modal with a reminder of all available shortcuts.
+Press **Space + H** while hovering over the file explorer to display a modal with a reminder of all available shortcuts.
 
 ## Why Use Explorer Shortcuts?
 
@@ -26,18 +26,19 @@ Press **h** while hovering over the file explorer to display a modal with a remi
 
 ## File/Folder Actions
 
-- **H**: Show a modal with a reminder of all available shortcuts.  
-  
-- **F2 or R**: Rename the selected file/folder.
-- **N**: Create a new file.
-- **F**: Create a new folder.
-- **X**: Mark(color) the hovered file/folder as Cut (Press again to unmark). You can also select multiple files/folders and press X to mark them all.
-- **C**: Mark(color) the hovered file/folder as Copy (Press again to unmark). You can also select multiple files/folders and press C to mark them all.
+N.B: Shortcuts are triggered when keys are released
+
+- **Space + H**: Show a modal with a reminder of all available shortcuts.
+- **F2 or Space + R**: Rename the selected file/folder.
+- **Space + N**: Create a new file.
+- **Space + F**: Create a new folder.
+- **Space + X**: Mark(color) the hovered file/folder as Cut (Press again to unmark). You can also select multiple files/folders and press X to mark them all.
+- **Space + C**: Mark(color) the hovered file/folder as Copy (Press again to unmark). You can also select multiple files/folders and press C to mark them all.
+- **Space + V**: Paste what have been marked as cut/copy to the hovered item (parent folder if file). You can mix and paste multiple files/folders simultaneously.
 - **Esc**: Unmark all cut/copy.
-- **V**: Paste what have been marked as cut/copy to the hovered item (parent folder if file). You can mix and paste multiple files/folders simultaneously.
 - **Delete**: Delete the hovered file/folder. By default, a confirmation dialog is shown for folders, but not for files. You can change this behavior in the plugin settings... You can still use the default Obsidian Delete after on a focused file.
-- **W**: Open the hovered file in a new window.
-- **O**: Open the hovered file/folder/root[^1] in the system explorer.
+- **Space + W**: Open the hovered file in a new window.
+- **Space + O**: Open the hovered file/folder/root[^1] in the system explorer.
 
 ## Commands
 
@@ -47,6 +48,6 @@ Press **h** while hovering over the file explorer to display a modal with a remi
 
 - **Confirmation on Deleting**: Prompts for confirmation before deleting files or folders.
 
-Explorer Shortcuts streamlines your Obsidian file management, boosting your productivity and efficiency.  
-  
+Explorer Shortcuts streamlines your Obsidian file management, boosting your productivity and efficiency.
+
 [^1]: The root folder is the root of the Obsidian vault.
