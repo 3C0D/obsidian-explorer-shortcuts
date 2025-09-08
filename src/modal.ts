@@ -70,9 +70,9 @@ export async function confirmation(
 
 export function showExplorerShortcutsModal(app: App): void {
 	const shortcuts = [
-		"Up/Down Arrow: Navigate between files and folders",
-		"Left Arrow: Toggle collapse/expand all folders",
-		"Right Arrow: Reveal the active file",
+		"Space + Up/Down Arrow: Navigate between files and folders",
+		"Space + Left Arrow: Toggle collapse/expand all folders",
+		"Space + Right Arrow: Reveal the active file",
 		"F2 or Space + R: Rename the selected file/folder",
 		"Space + N: Create a new file",
 		"Space + F: Create a new folder",
@@ -80,7 +80,7 @@ export function showExplorerShortcutsModal(app: App): void {
 		"Space + C: mark(color) the hovered file/folder as copy (Press again to unmark)",
 		"Space + V: Paste what have been marked as cut/copy to the hovered item (parent folder if file)",
 		"Esc: Cancel all cut/copy markings",
-		"Delete: Delete the hovered file/folder (with confirmation or not depending on settings)",
+		"Space + Delete: Delete the hovered file/folder (with confirmation or not depending on settings)",
 		"Space + W: Open the hovered file in a new window",
 		"Space + O: Open the hovered file/folder/root in the system explorer",
 		"Space + H: Show this help modal",
