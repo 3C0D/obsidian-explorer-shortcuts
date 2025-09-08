@@ -70,6 +70,7 @@ yarn acp        # Add-commit-push Git
 yarn bacp       # Build + add-commit-push
 yarn v          # Update version
 yarn h          # Help
+yarn r          # Release
 ```
 
 Explorer Shortcuts streamlines your Obsidian file management, boosting your productivity and efficiency with its Space-prefixed shortcut system that prevents accidental activation.
