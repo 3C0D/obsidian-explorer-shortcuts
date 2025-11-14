@@ -138,8 +138,8 @@ export function keyDown(this: ExplorerShortcuts, e: KeyboardEvent): void {
 
     // During renaming or creating new items, prevent all shortcuts from working
     if (this.renaming || this.isEditingNewItem) {
-        e.preventDefault();
-        e.stopPropagation();
+        this.spacePressed = false;
+        this.pendingSpaceCombos = {};
         return;
     }
 
