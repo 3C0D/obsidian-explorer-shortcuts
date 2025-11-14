@@ -13,11 +13,16 @@ import { Notice, TFile } from "obsidian";
 
 let goToUp = false; // don't run up if not good key
 
+function resetSpaceState(plugin: ExplorerShortcuts): void {
+    plugin.spacePressed = false;
+    plugin.pendingSpaceCombos = {};
+    plugin.blockedKeys = {};
+}
+
 export async function keyUp(this: ExplorerShortcuts, e: KeyboardEvent): Promise<void> {
     // Clear pending Space combinations when not over explorer
     if (!isOverExplorerNavContainer(this)) {
-        this.pendingSpaceCombos = {};
-        this.spacePressed = false;
+        resetSpaceState(this);
     }
 
     if (!goToUp || !isOverExplorerNavContainer(this)) {
@@ -35,14 +40,11 @@ export async function keyUp(this: ExplorerShortcuts, e: KeyboardEvent): Promise<
     if (e.key === 'Escape') {
         resetOperations(this);
         // Clear pending Space combinations
-        this.pendingSpaceCombos = {};
-        this.spacePressed = false;
+        resetSpaceState(this);
     }
 
     if (this.renaming || this.isEditingNewItem) {
-        this.blockedKeys = {};
-        this.pendingSpaceCombos = {};
-        this.spacePressed = false;
+        resetSpaceState(this);
         return;
     }
 
@@ -138,8 +140,7 @@ export function keyDown(this: ExplorerShortcuts, e: KeyboardEvent): void {
 
     // During renaming or creating new items, prevent all shortcuts from working
     if (this.renaming || this.isEditingNewItem) {
-        this.spacePressed = false;
-        this.pendingSpaceCombos = {};
+        resetSpaceState(this);
         return;
     }
 
