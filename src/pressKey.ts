@@ -136,7 +136,12 @@ export function keyDown(this: ExplorerShortcuts, e: KeyboardEvent): void {
     const isModalOpen = document.querySelector('.modal');
     if (isModalOpen) return;
 
-    if (this.renaming || this.isEditingNewItem) return;
+    // During renaming or creating new items, prevent all shortcuts from working
+    if (this.renaming || this.isEditingNewItem) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+    }
 
     // Track space key state
     if (e.key === ' ') {
