@@ -3,13 +3,12 @@ import ExplorerShortcuts from "./main.js";
 const REVEAL_TIMEOUT = 50;
 
 export function toggleCollapse(plugin: ExplorerShortcuts): void {
-	const collapseButton = document.querySelector(
-		'.nav-action-button[aria-label="Collapse all"]',
-	);
-	const expandButton = document.querySelector(
-		'.nav-action-button[aria-label="Expand all"]',
-	);
-	const button = collapseButton || expandButton;
+	// Target the toggle collapse/expand button based on its visual position.
+	// The last button in the nav-action-button list is the toggle collapse/expand button.
+	// Note: This approach is independent of the language (aria-label) but depends on the button order.
+	// If Obsidian changes the button order or adds/removes buttons, this code may break.
+	const buttons = document.querySelectorAll(".nav-action-button");
+	const button = buttons[buttons.length - 1]; // Last button (most left)
 
 	if (button) {
 		const clickEvent = new MouseEvent("click", {
