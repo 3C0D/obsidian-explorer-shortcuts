@@ -29,22 +29,29 @@ export async function rename(
 		) as HTMLElement | null;
 		if (!input) return;
 
-		input.addEventListener(
-			"blur",
-			(): void => {
-				plugin.renaming = false;
-				hovered.firstElementChild?.classList.remove("has-focus");
-			},
-			{ once: true },
-		); // once: true guarantees that the listener will be removed after its execution
+		// Disable space key in explorer while renaming
+		const handleKeyDown = (e: KeyboardEvent): void => {
+			if (e.key === " ") {
+				e.stopPropagation();
+			}
+		};
+
+		input.addEventListener("keydown", handleKeyDown, true);
+
+		const cleanup = (): void => {
+			plugin.renaming = false;
+			hovered.firstElementChild?.classList.remove("has-focus");
+			input.removeEventListener("keydown", handleKeyDown, true);
+		};
+
+		input.addEventListener("blur", cleanup, { once: true });
 
 		// Also add a listener for the Enter key
 		input.addEventListener(
 			"keydown",
 			(e: KeyboardEvent): void => {
 				if (e.key === "Enter") {
-					plugin.renaming = false;
-					hovered.firstElementChild?.classList.remove("has-focus");
+					cleanup();
 				}
 			},
 			{ once: true },
@@ -53,8 +60,7 @@ export async function rename(
 		// Security: force the reset after a delay
 		setTimeout((): void => {
 			if (plugin.renaming) {
-				plugin.renaming = false;
-				hovered.firstElementChild?.classList.remove("has-focus");
+				cleanup();
 			}
 		}, 10000);
 	}, 50);

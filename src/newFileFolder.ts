@@ -84,15 +84,25 @@ export async function createNewItem(
 		const checkForEditableFolder = setInterval((): void => {
 			const editableFolder = view.containerEl.querySelector(
 				'[contenteditable="true"]',
-			);
+			) as HTMLElement | null;
 			if (editableFolder) {
 				clearInterval(checkForEditableFolder);
+
+				// Disable space key in explorer while editing folder name
+				const handleKeyDown = (e: Event): void => {
+					if ((e as KeyboardEvent).key === " ") {
+						e.stopPropagation();
+					}
+				};
+
+				editableFolder.addEventListener("keydown", handleKeyDown, true);
 
 				// Add blur handler to reset the flag
 				editableFolder.addEventListener(
 					"blur",
 					(): void => {
 						plugin.isEditingNewItem = false;
+						editableFolder.removeEventListener("keydown", handleKeyDown, true);
 						// Remove has-focus from all items in explorer
 						view.containerEl
 							.querySelectorAll(".has-focus")
