@@ -40,11 +40,21 @@ export async function createNewItem(
 			if (inlineTitleEl) {
 				clearInterval(checkForInlineTitle);
 
+				// Disable space key in explorer while editing inline title
+				const handleKeyDown = (e: Event): void => {
+					if ((e as KeyboardEvent).key === " ") {
+						e.stopPropagation();
+					}
+				};
+
+				inlineTitleEl.addEventListener("keydown", handleKeyDown, true);
+
 				// Add blur handler to reset the flag
 				inlineTitleEl.addEventListener(
 					"blur",
 					(): void => {
 						plugin.isEditingNewItem = false;
+						inlineTitleEl.removeEventListener("keydown", handleKeyDown, true);
 						setTimeout((): void => {
 							const fileExplorer =
 								plugin.app.workspace.getLeavesOfType(
