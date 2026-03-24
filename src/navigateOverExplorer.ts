@@ -10,6 +10,7 @@ import {
 	unfoldFileItemParentFolder,
 	scrollToActiveEl,
 	getActiveExplorerFileItem,
+	showExplorerNotice,
 } from "./utils.ts";
 
 export type NavigationDirection = "up" | "down";
@@ -158,11 +159,13 @@ function getNextIndex(
 	currentIndex: number,
 	listLength: number,
 	direction: NavigationDirection,
-): number {
+): number | null {
 	if (direction === "down") {
-		return (currentIndex + 1) % listLength;
+		const nextIndex = currentIndex + 1;
+		return nextIndex >= listLength ? null : nextIndex;
 	} else {
-		return (currentIndex - 1 + listLength) % listLength;
+		const nextIndex = currentIndex - 1;
+		return nextIndex < 0 ? null : nextIndex;
 	}
 }
 
@@ -174,6 +177,13 @@ function findNextValidElement(
 ): Element | undefined {
 	let currentList = filteredList;
 	let nextIndex = getNextIndex(activeIndex, currentList.length, direction);
+	
+	if (nextIndex === null) {
+		const message = direction === "down" ? "End of explorer tree" : "Start of explorer tree";
+		showExplorerNotice(plugin, message, 1500);
+		return undefined;
+	}
+	
 	let nextElement = currentList[nextIndex];
 
 	while (isNavFolder(nextElement)) {
@@ -185,10 +195,21 @@ function findNextValidElement(
 				nextIndex,
 				direction,
 			);
+			if (newIndex === null) {
+				const message = direction === "down" ? "End of explorer tree" : "Start of explorer tree";
+				showExplorerNotice(plugin, message, 1500);
+				return undefined;
+			}
 			nextIndex = newIndex;
 			currentList = newList;
 		} else {
-			nextIndex = getNextIndex(nextIndex, currentList.length, direction);
+			const newNextIndex = getNextIndex(nextIndex, currentList.length, direction);
+			if (newNextIndex === null) {
+				const message = direction === "down" ? "End of explorer tree" : "Start of explorer tree";
+				showExplorerNotice(plugin, message, 1500);
+				return undefined;
+			}
+			nextIndex = newNextIndex;
 		}
 		nextElement = currentList[nextIndex];
 	}
@@ -202,7 +223,7 @@ function handleFoldedFolder(
 	filteredList: Element[],
 	currentIndex: number,
 	direction: NavigationDirection,
-): { newIndex: number; newList: Element[] } {
+): { newIndex: number | null; newList: Element[] } {
 	const initialLength = filteredList.length;
 	unfoldFileItemParentFolder(plugin, folderElement);
 	const newList = getFilteredExplorerItems();
@@ -210,7 +231,7 @@ function handleFoldedFolder(
 	const added = newLength - initialLength;
 	const folderIndex = newList.indexOf(folderElement);
 
-	let newIndex: number;
+	let newIndex: number | null;
 	if (direction === "down") {
 		newIndex =
 			added === 0
