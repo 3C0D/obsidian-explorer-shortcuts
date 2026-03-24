@@ -1,1 +1,1 @@
-space fix when rename
+fix: fix interference rename no more propagation. fix navigate files up and down. fix toggle collapse
