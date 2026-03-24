@@ -2,7 +2,12 @@ import { Plugin } from "obsidian";
 import { DEFAULT_SETTINGS, Operation } from "./types/variables.js";
 import { ESSettingTab } from "./settings.js";
 import { keyDown, keyUp } from "./pressKey.js";
-import { getEltFromMousePos, isOverExplorerNavContainer, isOverNavFile, isOverNavFolder } from "./utils.js";
+import {
+	getEltFromMousePos,
+	isOverExplorerNavContainer,
+	isOverNavFile,
+	isOverNavFolder,
+} from "./utils.js";
 import type { ESSettings } from "./types/global.js";
 
 export default class ExplorerShortcuts extends Plugin {
@@ -27,16 +32,24 @@ export default class ExplorerShortcuts extends Plugin {
 	}
 
 	private registerDomEvents(): void {
-		this.registerDomEvent(document, "mousemove", mouseMoveEvents.bind(this));
+		this.registerDomEvent(
+			document,
+			"mousemove",
+			mouseMoveEvents.bind(this),
+		);
 		this.registerDomEvent(document, "keydown", keyDown.bind(this), true);
-		this.registerDomEvent(document, "keyup", async (e): Promise<void> => await keyUp.call(this, e));
+		this.registerDomEvent(
+			document,
+			"keyup",
+			async (e): Promise<void> => await keyUp.call(this, e),
+		);
 	}
 
 	async loadSettings(): Promise<void> {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
-			await this.loadData()
+			await this.loadData(),
 		);
 	}
 

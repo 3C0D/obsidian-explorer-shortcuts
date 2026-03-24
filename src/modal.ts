@@ -33,8 +33,7 @@ class ConfirmModal extends Modal {
 					.onClick((): void => this.confirm(true));
 			})
 			.addExtraButton((b) =>
-				b.setIcon("cross")
-					.onClick((): void => this.confirm(false))
+				b.setIcon("cross").onClick((): void => this.confirm(false)),
 			);
 	}
 
@@ -44,28 +43,16 @@ class ConfirmModal extends Modal {
 	}
 }
 
-async function openConfirmModal(
-	app: App,
-	message: string
-): Promise<boolean> {
+async function openConfirmModal(app: App, message: string): Promise<boolean> {
 	return await new Promise((resolve) => {
-		new ConfirmModal(
-			app,
-			message,
-			(confirmed: boolean): void => {
-				resolve(confirmed);
-			}
-		).open();
+		new ConfirmModal(app, message, (confirmed: boolean): void => {
+			resolve(confirmed);
+		}).open();
 	});
 }
 
-export async function confirmation(
-	message: string,
-): Promise<boolean> {
-	return await openConfirmModal(
-		this.app,
-		message
-	);
+export async function confirmation(message: string): Promise<boolean> {
+	return await openConfirmModal(this.app, message);
 }
 
 export function showExplorerShortcutsModal(app: App): void {
@@ -88,6 +75,8 @@ export function showExplorerShortcutsModal(app: App): void {
 
 	const modal = new Modal(app);
 	modal.titleEl.textContent = "Explorer shortcuts reminder";
-	modal.contentEl.innerHTML = shortcuts.map(shortcut => `<p>${shortcut}</p>`).join('');
+	modal.contentEl.innerHTML = shortcuts
+		.map((shortcut) => `<p>${shortcut}</p>`)
+		.join("");
 	modal.open();
 }
