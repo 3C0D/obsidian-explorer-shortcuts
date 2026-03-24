@@ -83,7 +83,15 @@ export async function paste(plugin: ExplorerShortcuts): Promise<void> {
 						path.basename(itemPath),
 						conflictingItems.length,
 					);
-					if (action === ConflictAction.Cancel) continue;
+					if (action === ConflictAction.Cancel) {
+						// User cancelled - clear tagged items and operation
+						if (plugin.taggedItems) {
+							plugin.taggedItems.clear();
+						}
+						plugin.operation = null;
+						new Notice("Operation cancelled", 3000);
+						return;
+					}
 
 					if (applyToAll) {
 						globalAction = action;
