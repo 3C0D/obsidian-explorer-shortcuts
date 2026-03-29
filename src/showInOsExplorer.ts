@@ -1,14 +1,14 @@
-import ExplorerShortcuts from "./main.js";
-import { getElPath, getHoveredElement } from "./utils.js";
-import * as path from "path";
+import ExplorerShortcuts from './main.js';
+import { getElPath, getHoveredElement } from './utils.js';
+import * as path from 'path';
 
 export async function showInOsExplorer(
 	plugin: ExplorerShortcuts,
-	isOverExplorerNavContainer = false,
+	isOverExplorerNavContainer = false
 ): Promise<void> {
 	if (!isOverExplorerNavContainer) return;
 
-	let path = "/";
+	let path = '/';
 	const hoveredElement = getHoveredElement(plugin);
 	if (hoveredElement) {
 		path = getElPath(hoveredElement);
@@ -19,7 +19,7 @@ export async function showInOsExplorer(
 
 async function openDirectoryInFileManager(filePath: string): Promise<void> {
 	const shell = window.electron.shell;
-	if (path.extname(filePath) !== "") {
+	if (path.extname(filePath) !== '') {
 		filePath = path.dirname(filePath);
 	}
 	let dirPath = filePath;

@@ -30,14 +30,14 @@ const configs: Linter.Config[] = [
     rules: {
       // Base rules
       "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": ["warn", { "args": "none" }],
-      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/no-unused-vars": ["error", { "args": "none", "varsIgnorePattern": "^_" }],
+      "@typescript-eslint/ban-ts-comment": "warn",
       "no-prototype-builtins": "off",
       "@typescript-eslint/no-empty-function": "off",
 
       // Useful rules but not too strict
       "semi": "error",
-      "@typescript-eslint/explicit-function-return-type": "warn",
+      "@typescript-eslint/explicit-function-return-type": ["warn", { "allowExpressions": true }],
 
       // Disable overly strict rules
       "@typescript-eslint/no-unsafe-assignment": "off",

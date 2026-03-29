@@ -1,5 +1,5 @@
-import { FileView, Notice } from "obsidian";
-import ExplorerShortcuts from "./main.ts";
+import { FileView, Notice } from 'obsidian';
+import ExplorerShortcuts from './main.ts';
 import {
 	getElPath,
 	getExplorerFileItems,
@@ -10,10 +10,10 @@ import {
 	unfoldFileItemParentFolder,
 	scrollToActiveEl,
 	getActiveExplorerFileItem,
-	showExplorerNotice,
-} from "./utils.ts";
+	showExplorerNotice
+} from './utils.ts';
 
-export type NavigationDirection = "up" | "down";
+export type NavigationDirection = 'up' | 'down';
 
 // Throttling for smooth navigation
 let lastNavigationTime = 0;
@@ -35,9 +35,9 @@ function triggerMouseMoveForNavigation(plugin: ExplorerShortcuts): void {
 
 	// Set new timer to trigger mouse move after debounce period
 	mouseMoveDebounceTimer = setTimeout(() => {
-		const e = new MouseEvent("mousemove", {
+		const e = new MouseEvent('mousemove', {
 			clientX: plugin.mousePosition.x + 1,
-			clientY: plugin.mousePosition.y + 1,
+			clientY: plugin.mousePosition.y + 1
 		});
 		document.dispatchEvent(e);
 		mouseMoveDebounceTimer = null;
@@ -46,7 +46,7 @@ function triggerMouseMoveForNavigation(plugin: ExplorerShortcuts): void {
 
 export async function navigateOverExplorer(
 	plugin: ExplorerShortcuts,
-	direction: NavigationDirection = "down",
+	direction: NavigationDirection = 'down'
 ): Promise<void> {
 	// Throttle navigation for smooth experience
 	const currentTime = Date.now();
@@ -60,7 +60,7 @@ export async function navigateOverExplorer(
 	const nextElement = getNextElement(plugin, direction);
 
 	if (!nextElement) {
-		new Notice("End of list", 800);
+		new Notice('End of list', 800);
 		return;
 	}
 
@@ -76,13 +76,10 @@ export async function navigateOverExplorer(
 	triggerMouseMoveForNavigation(plugin);
 }
 
-async function ensureActiveElementVisible(
-	plugin: ExplorerShortcuts,
-): Promise<void> {
+async function ensureActiveElementVisible(plugin: ExplorerShortcuts): Promise<void> {
 	const activeItem = getActiveExplorerFileItem(plugin);
 	if (!activeItem) return;
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [path, _] = activeItem;
 
 	// Try to unfold parent folders twice to ensure visibility
@@ -91,7 +88,7 @@ async function ensureActiveElementVisible(
 		for (const [itemPath, item] of items) {
 			if (path.startsWith(itemPath) && isNavFolded(item.el)) {
 				// Only folders can be collapsed
-				if ("setCollapsed" in item) {
+				if ('setCollapsed' in item) {
 					item.setCollapsed(false, true);
 				}
 			}
@@ -104,7 +101,7 @@ async function ensureActiveElementVisible(
 
 function getNextElement(
 	plugin: ExplorerShortcuts,
-	direction: NavigationDirection,
+	direction: NavigationDirection
 ): Element | undefined {
 	let filteredList = getFilteredExplorerItems();
 	if (filteredList.length === 0) return undefined;
@@ -135,32 +132,28 @@ function handleInactiveFile(plugin: ExplorerShortcuts): number {
 
 	// Refresh the list after expanding
 	const updatedList = getFilteredExplorerItems();
-	return updatedList.findIndex((el) =>
-		el.children[0].classList.contains("is-active"),
-	);
+	return updatedList.findIndex((el) => el.children[0].classList.contains('is-active'));
 }
 
 function getFilteredExplorerItems(): Element[] {
 	const elements = getNavFilesContainerItems();
 	return Array.from(elements).filter(
 		(element) =>
-			!element.children[0].classList.contains("is-unsupported") &&
-			!element.classList.contains("mod-root"),
+			!element.children[0].classList.contains('is-unsupported') &&
+			!element.classList.contains('mod-root')
 	);
 }
 
 function findActiveIndex(elements: Element[]): number {
-	return elements.findIndex((el) =>
-		el.children[0].classList.contains("is-active"),
-	);
+	return elements.findIndex((el) => el.children[0].classList.contains('is-active'));
 }
 
 function getNextIndex(
 	currentIndex: number,
 	listLength: number,
-	direction: NavigationDirection,
+	direction: NavigationDirection
 ): number | null {
-	if (direction === "down") {
+	if (direction === 'down') {
 		const nextIndex = currentIndex + 1;
 		return nextIndex >= listLength ? null : nextIndex;
 	} else {
@@ -173,17 +166,18 @@ function findNextValidElement(
 	plugin: ExplorerShortcuts,
 	filteredList: Element[],
 	activeIndex: number,
-	direction: NavigationDirection,
+	direction: NavigationDirection
 ): Element | undefined {
 	let currentList = filteredList;
 	let nextIndex = getNextIndex(activeIndex, currentList.length, direction);
-	
+
 	if (nextIndex === null) {
-		const message = direction === "down" ? "End of explorer tree" : "Start of explorer tree";
+		const message =
+			direction === 'down' ? 'End of explorer tree' : 'Start of explorer tree';
 		showExplorerNotice(plugin, message, 1500);
 		return undefined;
 	}
-	
+
 	let nextElement = currentList[nextIndex];
 
 	while (isNavFolder(nextElement)) {
@@ -193,10 +187,13 @@ function findNextValidElement(
 				nextElement,
 				currentList,
 				nextIndex,
-				direction,
+				direction
 			);
 			if (newIndex === null) {
-				const message = direction === "down" ? "End of explorer tree" : "Start of explorer tree";
+				const message =
+					direction === 'down'
+						? 'End of explorer tree'
+						: 'Start of explorer tree';
 				showExplorerNotice(plugin, message, 1500);
 				return undefined;
 			}
@@ -205,7 +202,10 @@ function findNextValidElement(
 		} else {
 			const newNextIndex = getNextIndex(nextIndex, currentList.length, direction);
 			if (newNextIndex === null) {
-				const message = direction === "down" ? "End of explorer tree" : "Start of explorer tree";
+				const message =
+					direction === 'down'
+						? 'End of explorer tree'
+						: 'Start of explorer tree';
 				showExplorerNotice(plugin, message, 1500);
 				return undefined;
 			}
@@ -222,7 +222,7 @@ function handleFoldedFolder(
 	folderElement: Element,
 	filteredList: Element[],
 	currentIndex: number,
-	direction: NavigationDirection,
+	direction: NavigationDirection
 ): { newIndex: number | null; newList: Element[] } {
 	const initialLength = filteredList.length;
 	unfoldFileItemParentFolder(plugin, folderElement);
@@ -232,7 +232,7 @@ function handleFoldedFolder(
 	const folderIndex = newList.indexOf(folderElement);
 
 	let newIndex: number | null;
-	if (direction === "down") {
+	if (direction === 'down') {
 		newIndex =
 			added === 0
 				? getNextIndex(currentIndex, newList.length, direction)
@@ -253,10 +253,10 @@ function handleFoldedFolder(
  */
 function removeFocusFromExplorer(): void {
 	const focusedElements = document.querySelectorAll(
-		".nav-file-title.has-focus, .nav-folder-title.has-focus",
+		'.nav-file-title.has-focus, .nav-folder-title.has-focus'
 	);
 	focusedElements.forEach((el) => {
-		el.classList.remove("has-focus");
+		el.classList.remove('has-focus');
 	});
 }
 
@@ -266,23 +266,19 @@ function removeFocusFromExplorer(): void {
 async function revealActiveFile(plugin: ExplorerShortcuts): Promise<void> {
 	try {
 		// Run the reveal command twice to ensure it works on long trees
-		plugin.app.commands.executeCommandById(
-			"file-explorer:reveal-active-file",
-		);
-		plugin.app.commands.executeCommandById(
-			"file-explorer:reveal-active-file",
-		);
+		plugin.app.commands.executeCommandById('file-explorer:reveal-active-file');
+		plugin.app.commands.executeCommandById('file-explorer:reveal-active-file');
 
 		// Wait a bit for the reveal to complete
 		await new Promise((resolve) => setTimeout(resolve, 100));
 	} catch (error) {
-		console.error("Failed to reveal active file:", error);
+		console.error('Failed to reveal active file:', error);
 	}
 }
 
 export async function openNext(
 	plugin: ExplorerShortcuts,
-	next: Element | null,
+	next: Element | null
 ): Promise<void> {
 	const path = getElPath(next);
 	if (!path) return;
@@ -312,8 +308,7 @@ export async function openNext(
 	await scrollToActiveEl(plugin);
 
 	// Remettre le focus sur l'explorateur de fichiers
-	const fileExplorer =
-		plugin.app.workspace.getLeavesOfType("file-explorer")[0];
+	const fileExplorer = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
 	if (fileExplorer) {
 		plugin.app.workspace.setActiveLeaf(fileExplorer, { focus: true });
 	}

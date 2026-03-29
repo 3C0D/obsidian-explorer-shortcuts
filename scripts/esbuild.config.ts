@@ -6,7 +6,7 @@ import path from "path";
 import { readFileSync } from "fs";
 import { rm } from "fs/promises";
 import fs from "fs";
-import { isValidPath, copyFilesToTargetDir, askQuestion, createReadlineInterface } from "./utils.js";
+import { isValidPath, copyFilesToTargetDir, askQuestion, createReadlineInterface, removeMainCss } from "./utils.js";
 
 // Determine the plugin directory (where the script is called from)
 const pluginDir = process.cwd();
@@ -167,7 +167,60 @@ async function getBuildPath(isProd: boolean): Promise<string> {
   return getVaultPath(vaultPath);
 }
 
-async function createBuildContext(buildPath: string, isProd: boolean, entryPoints: string[]): Promise<esbuild.BuildContext> {
+async function createBuildContext(buildPath: string, isProd: boolean, entryPoints: string[], hasSass: boolean): Promise<esbuild.BuildContext> {
+  const plugins = [
+    // Add SASS plugin if SCSS files are detected
+    ...(hasSass ? [
+      await (async () => {
+        try {
+          // @ts-expect-error - esbuild-sass-plugin is installed during injection
+          const { sassPlugin } = await import('esbuild-sass-plugin');
+          return sassPlugin({
+            syntax: 'scss',
+            style: 'expanded',
+          });
+        } catch (error) {
+          console.warn('⚠️  esbuild-sass-plugin not found. Install it with: yarn add -D esbuild-sass-plugin');
+          throw error;
+        }
+      })(),
+      {
+        name: 'remove-main-css',
+        setup(build: esbuild.PluginBuild): void {
+          build.onEnd(async (result) => {
+            if (result.errors.length === 0) {
+              await removeMainCss(buildPath);
+            }
+          });
+        },
+      }
+    ] : []),
+    {
+      name: "copy-to-plugins-folder",
+      setup: (build: esbuild.PluginBuild): void => {
+        build.onEnd(async () => {
+          // if real or build
+          if (isProd) {
+            if (process.argv.includes("-r") || process.argv.includes("real")) {
+              await copyFilesToTargetDir(buildPath);
+              console.log(`Successfully installed in ${buildPath}`);
+            } else {
+              const folderToRemove = path.join(buildPath, "_.._");
+              if (await isValidPath(folderToRemove)) {
+                await rm(folderToRemove, { recursive: true });
+              }
+              console.log("Built done in initial folder");
+            }
+          }
+          // if watch (dev)
+          else {
+            await copyFilesToTargetDir(buildPath);
+          }
+        });
+      }
+    }
+  ];
+
   return await esbuild.context({
     banner: { js: BANNER },
     minify: isProd,
@@ -182,51 +235,7 @@ async function createBuildContext(buildPath: string, isProd: boolean, entryPoint
     treeShaking: true,
     outdir: buildPath,
     outbase: path.join(pluginDir, "src"),
-    plugins: [
-      // Plugin pour gérer les alias de chemin
-      {
-        name: "path-alias",
-        setup: (build): void => {
-          build.onResolve({ filter: /^@config\// }, (args) => {
-            const relativePath = args.path.replace(/^@config\//, "");
-            return {
-              path: path.resolve("../obsidian-plugin-config/src", relativePath)
-            };
-          });
-
-          build.onResolve({ filter: /^@config-scripts\// }, (args) => {
-            const relativePath = args.path.replace(/^@config-scripts\//, "");
-            return {
-              path: path.resolve("../obsidian-plugin-config/scripts", relativePath)
-            };
-          });
-        }
-      },
-      {
-        name: "copy-to-plugins-folder",
-        setup: (build): void => {
-          build.onEnd(async () => {
-            // if real or build
-            if (isProd) {
-              if (process.argv.includes("-r") || process.argv.includes("real")) {
-                await copyFilesToTargetDir(buildPath);
-                console.log(`Successfully installed in ${buildPath}`);
-              } else {
-                const folderToRemove = path.join(buildPath, "_.._");
-                if (await isValidPath(folderToRemove)) {
-                  await rm(folderToRemove, { recursive: true });
-                }
-                console.log("Built done in initial folder");
-              }
-            }
-            // if watch (dev)
-            else {
-              await copyFilesToTargetDir(buildPath);
-            }
-          });
-        }
-      }
-    ]
+    plugins
   });
 }
 
@@ -238,12 +247,20 @@ async function main(): Promise<void> {
     console.log(buildPath === pluginDir
       ? "Building in initial folder"
       : `Building in ${buildPath}`);
+
+    // Check for SCSS first, then CSS in src, then in root
+    const srcStylesScssPath = path.join(pluginDir, "src/styles.scss");
     const srcStylesPath = path.join(pluginDir, "src/styles.css");
     const rootStylesPath = path.join(pluginDir, "styles.css");
-    const stylePath = await isValidPath(srcStylesPath) ? srcStylesPath : await isValidPath(rootStylesPath) ? rootStylesPath : "";
+
+    const scssExists = await isValidPath(srcStylesScssPath);
+    const stylePath = scssExists ? srcStylesScssPath :
+      await isValidPath(srcStylesPath) ? srcStylesPath :
+        await isValidPath(rootStylesPath) ? rootStylesPath : "";
+
     const mainTsPath = path.join(pluginDir, "src/main.ts");
     const entryPoints = stylePath ? [mainTsPath, stylePath] : [mainTsPath];
-    const context = await createBuildContext(buildPath, isProd, entryPoints);
+    const context = await createBuildContext(buildPath, isProd, entryPoints, scssExists);
 
     if (isProd) {
       await context.rebuild();

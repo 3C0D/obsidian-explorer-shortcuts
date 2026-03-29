@@ -1,20 +1,20 @@
-import { TFile, TFolder } from "obsidian";
-import ExplorerShortcuts from "./main.js";
-import { getElPath, getExplorerView, getHoveredElement } from "./utils.js";
+import { TFile, TFolder } from 'obsidian';
+import ExplorerShortcuts from './main.js';
+import { getElPath, getExplorerView, getHoveredElement } from './utils.js';
 
 export async function createNewItem(
 	plugin: ExplorerShortcuts,
-	type: "file" | "folder",
+	type: 'file' | 'folder'
 ): Promise<void> {
 	const view = getExplorerView(plugin);
 	if (!view) return;
 
 	const hovered = getHoveredElement(plugin);
-	const path = getElPath(hovered) || "/";
+	const path = getElPath(hovered) || '/';
 
 	let targetFolder: TFolder;
 
-	if (path === "/") {
+	if (path === '/') {
 		targetFolder = plugin.app.vault.getRoot();
 	} else {
 		const hoveredItem = view.fileItems[path];
@@ -33,46 +33,43 @@ export async function createNewItem(
 
 	view.createAbstractFile(type, targetFolder, true);
 
-	if (type === "file") {
+	if (type === 'file') {
 		// Watch for the inline title element to appear
 		const checkForInlineTitle = setInterval((): void => {
-			const inlineTitleEl = document.querySelector(".inline-title");
+			const inlineTitleEl = document.querySelector('.inline-title');
 			if (inlineTitleEl) {
 				clearInterval(checkForInlineTitle);
 
 				// Disable space key in explorer while editing inline title
 				const handleKeyDown = (e: Event): void => {
-					if ((e as KeyboardEvent).key === " ") {
+					if ((e as KeyboardEvent).key === ' ') {
 						e.stopPropagation();
 					}
 				};
 
-				inlineTitleEl.addEventListener("keydown", handleKeyDown, true);
+				inlineTitleEl.addEventListener('keydown', handleKeyDown, true);
 
 				// Add blur handler to reset the flag
 				inlineTitleEl.addEventListener(
-					"blur",
+					'blur',
 					(): void => {
 						plugin.isEditingNewItem = false;
-						inlineTitleEl.removeEventListener("keydown", handleKeyDown, true);
+						inlineTitleEl.removeEventListener('keydown', handleKeyDown, true);
 						setTimeout((): void => {
 							const fileExplorer =
-								plugin.app.workspace.getLeavesOfType(
-									"file-explorer",
-								)[0];
+								plugin.app.workspace.getLeavesOfType('file-explorer')[0];
 							if (fileExplorer) {
-								plugin.app.workspace.setActiveLeaf(
-									fileExplorer,
-									{ focus: true },
-								);
+								plugin.app.workspace.setActiveLeaf(fileExplorer, {
+									focus: true
+								});
 							}
 						}, 100);
 					},
-					{ once: true },
+					{ once: true }
 				);
 
-				inlineTitleEl.addEventListener("keydown", (e: Event): void => {
-					if ((e as KeyboardEvent).key === "Enter") {
+				inlineTitleEl.addEventListener('keydown', (e: Event): void => {
+					if ((e as KeyboardEvent).key === 'Enter') {
 						e.preventDefault();
 						(inlineTitleEl as HTMLElement).blur();
 					}
@@ -83,34 +80,36 @@ export async function createNewItem(
 		// For folders, watch for the editable element in explorer
 		const checkForEditableFolder = setInterval((): void => {
 			const editableFolder = view.containerEl.querySelector(
-				'[contenteditable="true"]',
+				'[contenteditable="true"]'
 			) as HTMLElement | null;
 			if (editableFolder) {
 				clearInterval(checkForEditableFolder);
 
 				// Disable space key in explorer while editing folder name
 				const handleKeyDown = (e: Event): void => {
-					if ((e as KeyboardEvent).key === " ") {
+					if ((e as KeyboardEvent).key === ' ') {
 						e.stopPropagation();
 					}
 				};
 
-				editableFolder.addEventListener("keydown", handleKeyDown, true);
+				editableFolder.addEventListener('keydown', handleKeyDown, true);
 
 				// Add blur handler to reset the flag
 				editableFolder.addEventListener(
-					"blur",
+					'blur',
 					(): void => {
 						plugin.isEditingNewItem = false;
-						editableFolder.removeEventListener("keydown", handleKeyDown, true);
+						editableFolder.removeEventListener(
+							'keydown',
+							handleKeyDown,
+							true
+						);
 						// Remove has-focus from all items in explorer
-						view.containerEl
-							.querySelectorAll(".has-focus")
-							.forEach((el) => {
-								el.classList.remove("has-focus");
-							});
+						view.containerEl.querySelectorAll('.has-focus').forEach((el) => {
+							el.classList.remove('has-focus');
+						});
 					},
-					{ once: true },
+					{ once: true }
 				);
 			}
 		}, 50);
@@ -120,8 +119,8 @@ export async function createNewItem(
 	setTimeout((): void => {
 		plugin.isEditingNewItem = false;
 		// Also clean up any lingering has-focus classes
-		view.containerEl.querySelectorAll(".has-focus").forEach((el) => {
-			el.classList.remove("has-focus");
+		view.containerEl.querySelectorAll('.has-focus').forEach((el) => {
+			el.classList.remove('has-focus');
 		});
 	}, 10000);
 }

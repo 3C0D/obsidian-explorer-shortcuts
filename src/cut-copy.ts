@@ -1,14 +1,11 @@
-import type ExplorerShortcuts from "./main.ts";
-import { Operation } from "./types/variables.ts";
-import { getHoveredElement, getNavFilesContainerItems } from "./utils.ts";
+import type ExplorerShortcuts from './main.ts';
+import { Operation } from './types/variables.ts';
+import { getHoveredElement, getNavFilesContainerItems } from './utils.ts';
 
 /**
  * Function to perform the copy or cut operation on the selected items
  */
-export function performOperation(
-	plugin: ExplorerShortcuts,
-	operation: Operation,
-): void {
+export function performOperation(plugin: ExplorerShortcuts, operation: Operation): void {
 	plugin.operation = operation;
 
 	const selectedItems = getSelectedExplorerItems(plugin);
@@ -23,13 +20,13 @@ export function performOperation(
 	if (hovered && plugin.taggedItems && plugin.taggedItems.has(hovered)) {
 		// Remove the item from tagged items if it's already there
 		plugin.taggedItems.delete(hovered);
-		hovered.classList.remove("copy", "cut");
+		hovered.classList.remove('copy', 'cut');
 	} else if (selectedItems.length > 1) {
 		// Add all selected items if there are multiple selections
 		selectedItems.forEach((item) => {
 			plugin.taggedItems?.add(item);
 			// Remove any existing operation classes
-			item.classList.remove("copy", "cut");
+			item.classList.remove('copy', 'cut');
 			// Add the new operation class
 			item.classList.add(operation);
 		});
@@ -37,7 +34,7 @@ export function performOperation(
 		// Add the hovered item if it's not already tagged
 		plugin.taggedItems.add(hovered);
 		// Remove any existing operation classes
-		hovered.classList.remove("copy", "cut");
+		hovered.classList.remove('copy', 'cut');
 		// Add the new operation class
 		hovered.classList.add(operation);
 	}
@@ -54,7 +51,7 @@ export function cut(plugin: ExplorerShortcuts): void {
 export function resetOperations(plugin: ExplorerShortcuts): void {
 	const items = getNavFilesContainerItems();
 	items.forEach((item) => {
-		item.classList.remove("copy", "cut");
+		item.classList.remove('copy', 'cut');
 	});
 	plugin.operation = null;
 
@@ -68,8 +65,7 @@ export function resetOperations(plugin: ExplorerShortcuts): void {
  * Function to get all selected items in the explorer
  */
 function getSelectedExplorerItems(plugin: ExplorerShortcuts): Element[] {
-	const fileExplorer =
-		plugin.app.workspace.getLeavesOfType("file-explorer")[0];
+	const fileExplorer = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
 	if (!fileExplorer) return [];
 
 	const view = fileExplorer.view as any;
@@ -92,18 +88,16 @@ function getSelectedExplorerItems(plugin: ExplorerShortcuts): Element[] {
 		let isSelected = false;
 
 		// Check if the element itself has the class
-		if (item.el.classList.contains("is-selected")) {
+		if (item.el.classList.contains('is-selected')) {
 			isSelected = true;
 		} else {
 			// Check if any child element has the class (especially the title element)
-			const titleEl = item.el.querySelector(
-				".nav-file-title, .nav-folder-title",
-			);
-			if (titleEl && titleEl.classList.contains("is-selected")) {
+			const titleEl = item.el.querySelector('.nav-file-title, .nav-folder-title');
+			if (titleEl && titleEl.classList.contains('is-selected')) {
 				isSelected = true;
 			} else {
 				// As a fallback, check any child with the is-selected class
-				const selectedChild = item.el.querySelector(".is-selected");
+				const selectedChild = item.el.querySelector('.is-selected');
 				if (selectedChild) {
 					isSelected = true;
 				}
@@ -111,11 +105,11 @@ function getSelectedExplorerItems(plugin: ExplorerShortcuts): Element[] {
 		}
 
 		if (isSelected) {
-			const isFolder = item.el.classList.contains("nav-folder");
+			const isFolder = item.el.classList.contains('nav-folder');
 			candidateItems.push({
 				path,
 				element: item.el,
-				isFolder,
+				isFolder
 			});
 		}
 	}
@@ -135,8 +129,8 @@ function getSelectedExplorerItems(plugin: ExplorerShortcuts): Element[] {
 		for (const candidate of candidateItems) {
 			if (candidate.isFolder) {
 				// For folders, only include if no selected files are inside this folder
-				const hasSelectedFilesInside = selectedFilePaths.some(
-					(filePath) => filePath.startsWith(candidate.path + "/"),
+				const hasSelectedFilesInside = selectedFilePaths.some((filePath) =>
+					filePath.startsWith(candidate.path + '/')
 				);
 
 				if (!hasSelectedFilesInside) {

@@ -1,10 +1,10 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
-import MyPlugin from "./main.js";
+import { App, PluginSettingTab, Setting } from 'obsidian';
+import MyPlugin from './main.js';
 
 export class ESSettingTab extends PluginSettingTab {
 	constructor(
 		app: App,
-		public plugin: MyPlugin,
+		public plugin: MyPlugin
 	) {
 		super(app, plugin);
 		this.plugin = plugin;
@@ -15,14 +15,14 @@ export class ESSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl("h3", {
-			text: "Shortcut reminder: Press Space + h to open the help panel with all shortcuts",
+		containerEl.createEl('h3', {
+			text: 'Shortcut reminder: Press Space + h to open the help panel with all shortcuts'
 		});
 
 		new Setting(containerEl)
-			.setName("Confirm before deleting files")
+			.setName('Confirm before deleting files')
 			.setDesc(
-				"Warning: Disabling this is dangerous as you can easily delete the wrong hovered file without confirmation.",
+				'Warning: Disabling this is dangerous as you can easily delete the wrong hovered file without confirmation.'
 			)
 			.addToggle((t) =>
 				t
@@ -30,13 +30,13 @@ export class ESSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.delConfirmFile = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Confirm before deleting folders (when not empty)")
+			.setName('Confirm before deleting folders (when not empty)')
 			.setDesc(
-				"Warning: Disabling this is dangerous as you can easily delete the wrong hovered folder without confirmation.",
+				'Warning: Disabling this is dangerous as you can easily delete the wrong hovered folder without confirmation.'
 			)
 			.addToggle((t) =>
 				t
@@ -44,7 +44,7 @@ export class ESSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.delConfirmFolder = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 	}
 }
