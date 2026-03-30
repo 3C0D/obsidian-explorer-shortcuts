@@ -1,3 +1,4 @@
+import type { FileExplorerView } from 'obsidian-typings';
 import type ExplorerShortcuts from './main.ts';
 import { Operation } from './types/variables.ts';
 import { getHoveredElement, getNavFilesContainerItems } from './utils.ts';
@@ -68,7 +69,7 @@ function getSelectedExplorerItems(plugin: ExplorerShortcuts): Element[] {
 	const fileExplorer = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
 	if (!fileExplorer) return [];
 
-	const view = fileExplorer.view as any;
+	const view = fileExplorer.view as FileExplorerView;
 	if (!view) return [];
 
 	// Get all elements with the 'is-selected' class in the file explorer

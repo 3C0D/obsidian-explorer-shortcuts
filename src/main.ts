@@ -1,5 +1,6 @@
 import { Plugin } from 'obsidian';
-import { DEFAULT_SETTINGS, Operation } from './types/variables.js';
+import type { Operation } from './types/variables.js';
+import { DEFAULT_SETTINGS } from './types/variables.js';
 import { ESSettingTab } from './settings.js';
 import { keyDown, keyUp } from './pressKey.js';
 import {
@@ -50,7 +51,7 @@ export default class ExplorerShortcuts extends Plugin {
 	}
 }
 
-function mouseMoveEvents(e: MouseEvent): void {
+function mouseMoveEvents(this: ExplorerShortcuts, e: MouseEvent): void {
 	this.elementFromPoint = getEltFromMousePos(this, e);
 	if (!isOverExplorerNavContainer(this)) return;
 	this.explorerfolderContainer = isOverNavFolder(this);

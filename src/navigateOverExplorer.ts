@@ -1,5 +1,6 @@
-import { FileView, Notice } from 'obsidian';
-import ExplorerShortcuts from './main.ts';
+import type { FileView } from 'obsidian';
+import { Notice } from 'obsidian';
+import type ExplorerShortcuts from './main.ts';
 import {
 	getElPath,
 	getExplorerFileItems,
@@ -266,7 +267,9 @@ function removeFocusFromExplorer(): void {
 async function revealActiveFile(plugin: ExplorerShortcuts): Promise<void> {
 	try {
 		// Run the reveal command twice to ensure it works on long trees
+
 		plugin.app.commands.executeCommandById('file-explorer:reveal-active-file');
+
 		plugin.app.commands.executeCommandById('file-explorer:reveal-active-file');
 
 		// Wait a bit for the reveal to complete

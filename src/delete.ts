@@ -1,6 +1,6 @@
-import { Notice, TFile, TFolder } from 'obsidian';
+import { type App, Notice, TFile, TFolder } from 'obsidian';
 import type ExplorerShortcuts from './main.ts';
-import { confirmation } from './modal.ts';
+import { confirmation } from 'obsidian-plugin-config';
 import { getExplorerView, getHoveredElement, getElPath } from './utils.ts';
 
 export async function deleteItem(
@@ -25,11 +25,11 @@ export async function deleteItem(
 		return; // to allow default obsidian delete
 
 	if (plugin.settings.delConfirmFile && itemFile instanceof TFile) {
-		confirmed = await getConfirmed(itemFile);
+		confirmed = await getConfirmed(plugin.app, itemFile);
 	} else if (plugin.settings.delConfirmFolder && itemFile instanceof TFolder) {
 		const isFolderEmpty = itemFile.children.length === 0;
 		if (!isFolderEmpty) {
-			confirmed = await getConfirmed(itemFile);
+			confirmed = await getConfirmed(plugin.app, itemFile);
 		}
 	}
 
@@ -42,8 +42,8 @@ export async function deleteItem(
 	return;
 }
 
-async function getConfirmed(itemFile: TFile | TFolder): Promise<boolean> {
-	return confirmation(' Are you sure you want to delete ' + itemFile.name + '?');
+async function getConfirmed(app: App, itemFile: TFile | TFolder): Promise<boolean> {
+	return confirmation(app, 'Are you sure you want to delete ' + itemFile.name + '?');
 }
 
 export function triggerDelete(plugin: ExplorerShortcuts, evt: KeyboardEvent): void {

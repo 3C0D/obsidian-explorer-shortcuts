@@ -1,4 +1,5 @@
-import { App, Modal, Scope, Setting } from 'obsidian';
+import type { App } from 'obsidian';
+import { Modal, Scope, Setting } from 'obsidian';
 
 type ConfirmCallback = (confirmed: boolean) => void;
 
@@ -51,8 +52,8 @@ async function openConfirmModal(app: App, message: string): Promise<boolean> {
 	});
 }
 
-export async function confirmation(message: string): Promise<boolean> {
-	return await openConfirmModal(this.app, message);
+export async function confirmation(app: App, message: string): Promise<boolean> {
+	return await openConfirmModal(app, message);
 }
 
 export function showExplorerShortcutsModal(app: App): void {

@@ -1,4 +1,4 @@
-import ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.js';
 
 const REVEAL_TIMEOUT = 50;
 
@@ -40,8 +40,12 @@ export function triggerMouseMove(plugin: ExplorerShortcuts): void {
 export function reveal(plugin: ExplorerShortcuts): void {
 	try {
 		// run twice to ensure the file is revealed on long trees
+
 		plugin.app.commands.executeCommandById('file-explorer:reveal-active-file');
-		plugin.app.commands.executeCommandById('file-explorer:reveal-active-file');
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(plugin.app as any).commands.executeCommandById(
+			'file-explorer:reveal-active-file'
+		);
 
 		// Focus on active leaf after a short delay to ensure UI has updated
 		setTimeout((): void => {

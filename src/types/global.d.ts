@@ -1,3 +1,11 @@
+declare module 'obsidian' {
+	interface DataAdapter {
+		getFullPath: (normalizedPath: string) => string;
+		basePath: string;
+	}
+}
+
+
 export interface ESSettings {
 	delConfirmFile: boolean;
 	delConfirmFolder: boolean;

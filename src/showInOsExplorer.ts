@@ -1,4 +1,4 @@
-import ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.js';
 import { getElPath, getHoveredElement } from './utils.js';
 import * as path from 'path';
 
@@ -14,16 +14,19 @@ export async function showInOsExplorer(
 		path = getElPath(hoveredElement);
 	}
 
-	openDirectoryInFileManager.call(plugin, path);
+	openDirectoryInFileManager(plugin, path);
 }
 
-async function openDirectoryInFileManager(filePath: string): Promise<void> {
+async function openDirectoryInFileManager(
+	plugin: ExplorerShortcuts,
+	filePath: string
+): Promise<void> {
 	const shell = window.electron.shell;
 	if (path.extname(filePath) !== '') {
 		filePath = path.dirname(filePath);
 	}
 	let dirPath = filePath;
-	const vaultPath = this.app.vault.adapter.basePath;
+	const vaultPath = plugin.app.vault.adapter.basePath;
 	dirPath = path.join(vaultPath, filePath);
 
 	try {

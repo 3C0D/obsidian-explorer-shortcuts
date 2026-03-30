@@ -1,5 +1,5 @@
 import type { FileExplorerView, FileTreeItem, FolderTreeItem } from 'obsidian-typings';
-import ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.js';
 import * as path from 'path';
 import { ElementType } from './types/variables.js';
 
@@ -137,7 +137,8 @@ export function isOverEditor(plugin: ExplorerShortcuts): Element | null {
 
 export function getExplorerView(plugin: ExplorerShortcuts): FileExplorerView {
 	const { workspace } = plugin.app;
-	return workspace.getLeavesOfType('file-explorer')?.first()?.view as FileExplorerView;
+	return workspace.getLeavesOfType('file-explorer')?.first()
+		?.view as unknown as FileExplorerView;
 }
 
 export function getExplorerFileItems(
@@ -225,63 +226,3 @@ export function blinkElement(el: HTMLElement, times: number, interval: number): 
 		}
 	}, interval);
 }
-
-// Unused - can be commented out
-// export function getExplorerItemPaths(item: [string, TreeItem<FileTreeItem>]) {
-//     return item[0] || "";
-// }
-
-// Unused - can be commented out
-// export function unfoldAll(plugin: ExplorerShortcuts, path: string, fold = true) {
-//     let parts = path.split("/");
-//     if (!(parts.length > 1)) return
-//     const items = getExplorerFileItems(plugin).filter(item => isNavFolder(item[1].el))
-//     if (!items) return
-//     while (parts.length > 1) {
-//         parts = parts.slice(0, parts.length - 1);
-//         const parent = parts.join("/");
-//         for (const item of items) {
-//             if (item[0].includes(parent)) {
-//                 item[1].setCollapsed(fold, true)
-//                 break
-//             }
-//         }
-//     }
-// }
-
-// Unused - can be commented out
-// export function renameItem(plugin: ExplorerShortcuts, activePath: string) {
-//     const view = getExplorerView(plugin);
-//     if (!view) return
-//     const hovered = getHoveredElement(plugin)
-//     if (!hovered) return
-//     const tree = view.tree;
-//     if (!tree) return;
-//     const path = activePath || '/'
-//     const hoveredItem = view.fileItems[path]
-//     if (!hoveredItem) return
-//     tree.setFocusedItem(hoveredItem);
-//     tree.handleRenameFocusedItem()
-//     const input = view.containerEl.querySelector('[contenteditable="true"]') as HTMLInputElement | null;
-//     if (!input) return
-//     input.onblur = function () {
-//         plugin.renaming = false
-//         hovered.firstElementChild?.classList.remove("has-focus")
-//     }
-// }
-
-// export function getActiveLeafPath(plugin: ExplorerShortcuts) {
-//     const activeLeaf = plugin.app.workspace.getLeaf(false)
-//     return activeLeaf?.view.file?.path
-// }
-
-// export function isExplorerActif(plugin: ExplorerShortcuts) {
-//     if (!plugin.explorerContainer) return false
-//     const leafContent = plugin.explorerContainer.parentElement
-//     if (!leafContent) return false
-//     return leafContent.parentElement!.classList.contains("mod-active")
-// }
-
-// export function isOverRibbonBar(plugin: ExplorerShortcuts) {
-//     return plugin.elementFromPoint?.closest(".workspace-ribbon") ?? null;
-// }

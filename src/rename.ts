@@ -1,4 +1,4 @@
-import ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.js';
 import { getElPath, getExplorerView, getHoveredElement } from './utils.js';
 
 export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promise<void> {

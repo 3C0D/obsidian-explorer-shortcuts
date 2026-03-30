@@ -1,6 +1,7 @@
-import { normalizePath, TFile, TFolder, Notice, Modal, Setting, App } from 'obsidian';
+import type { App } from 'obsidian';
+import { normalizePath, TFile, TFolder, Notice, Modal, Setting } from 'obsidian';
 import * as path from 'path';
-import ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.js';
 import {
 	getElPath,
 	getExplorerFileItems,
@@ -227,7 +228,7 @@ async function safeCopy(
 		}
 	} else {
 		// It's a folder - use the file as TFolder
-		const folder = file as TFolder;
+		const folder = file as unknown as TFolder;
 		await safeCopyFolder(plugin, folder, newPath, replace);
 	}
 }
@@ -265,7 +266,7 @@ async function safeCut(
 		}
 		await plugin.app.fileManager.renameFile(item[1].file, newPath);
 	} else {
-		await plugin.app.vault.rename(item[1].file as TFolder, newPath);
+		await plugin.app.vault.rename(item[1].file as unknown as TFolder, newPath);
 	}
 }
 

@@ -6,7 +6,7 @@ import { paste } from './paste.js';
 import { rename } from './rename.js';
 import { reveal, toggleCollapse } from './toggleCollapse.js';
 import { isOverExplorerNavContainer, getHoveredElement, getElPath } from './utils.js';
-import ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.js';
 import { showExplorerShortcutsModal } from './modal.js';
 import { showInOsExplorer } from './showInOsExplorer.js';
 import { Notice, TFile } from 'obsidian';

@@ -1,5 +1,5 @@
 import { TFile, TFolder } from 'obsidian';
-import ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.js';
 import { getElPath, getExplorerView, getHoveredElement } from './utils.js';
 
 export async function createNewItem(
@@ -31,7 +31,11 @@ export async function createNewItem(
 
 	plugin.isEditingNewItem = true;
 
-	view.createAbstractFile(type, targetFolder, true);
+	view.createAbstractFile(
+		type,
+		targetFolder as unknown as Parameters<typeof view.createAbstractFile>[1],
+		true
+	);
 
 	if (type === 'file') {
 		// Watch for the inline title element to appear
