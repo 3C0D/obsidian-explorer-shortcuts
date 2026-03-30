@@ -63,7 +63,7 @@ async function getTargetVersion(currentVersion: string): Promise<string> {
 
 async function updateJsonFile(
 	filename: string,
-	updateFn: (json: any) => void
+	updateFn: (json: Record<string, unknown>) => void
 ): Promise<void> {
 	try {
 		const content = JSON.parse(await readFile(filename, 'utf8'));

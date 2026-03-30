@@ -79,17 +79,21 @@ export async function copyFilesToTargetDir(buildPath: string): Promise<void> {
 
 	try {
 		await mkdir(buildPath, { recursive: true });
-	} catch (error: any) {
-		if (error.code !== 'EEXIST') {
-			console.error(`Error creating directory: ${error.message}`);
+	} catch (error: unknown) {
+		if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
+			console.error(
+				`Error creating directory: ${error instanceof Error ? error.message : String(error)}`
+			);
 		}
 	}
 
 	// Copy manifest
 	try {
 		await copyFile(manifestSrc, manifestDest);
-	} catch (error: any) {
-		console.error(`Error copying manifest: ${error.message}`);
+	} catch (error: unknown) {
+		console.error(
+			`Error copying manifest: ${error instanceof Error ? error.message : String(error)}`
+		);
 	}
 
 	// Copy CSS
@@ -110,16 +114,21 @@ export async function copyFilesToTargetDir(buildPath: string): Promise<void> {
 		} else {
 			return;
 		}
-	} catch (error: any) {
-		console.error(`Error copying CSS: ${error.message}`);
+	} catch (error: unknown) {
+		console.error(
+			`Error copying CSS: ${error instanceof Error ? error.message : String(error)}`
+		);
 	}
 }
 
 export function gitExec(command: string): void {
 	try {
 		execSync(command, { stdio: 'inherit' });
-	} catch (error: any) {
-		console.error(`Error executing '${command}':`, error.message);
+	} catch (error: unknown) {
+		console.error(
+			`Error executing '${command}':`,
+			error instanceof Error ? error.message : String(error)
+		);
 		throw error;
 	}
 }
@@ -144,8 +153,10 @@ export async function ensureGitSync(): Promise<void> {
 		} else {
 			console.log('✅ Repository is synchronized with remote');
 		}
-	} catch (error: any) {
-		console.error(`❌ Git sync failed: ${error.message}`);
+	} catch (error: unknown) {
+		console.error(
+			`❌ Git sync failed: ${error instanceof Error ? error.message : String(error)}`
+		);
 		throw error;
 	}
 }
@@ -158,9 +169,11 @@ export async function removeMainCss(outdir: string): Promise<void> {
 	const mainCssPath = path.join(outdir, 'main.css');
 	try {
 		await rm(mainCssPath);
-	} catch (error: any) {
-		if (error.code !== 'ENOENT') {
-			console.warn(`Warning: Could not remove main.css: ${error.message}`);
+	} catch (error: unknown) {
+		if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+			console.warn(
+				`Warning: Could not remove main.css: ${error instanceof Error ? error.message : String(error)}`
+			);
 		}
 	}
 }
