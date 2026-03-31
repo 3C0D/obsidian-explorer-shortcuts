@@ -2624,9 +2624,9 @@ object-keys@^1.1.1:
   integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
 
 obsidian-plugin-config@latest:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/obsidian-plugin-config/-/obsidian-plugin-config-1.5.3.tgz#5c8f44c3cb53ccb04bd913f8eb3c1cf842dbfc48"
-  integrity sha512-CfvJiBuZT5Rg8A63V0EaUV7h0yIfcPzvEf+RCTOx8KVS+ZRe+zgfcMLR1nSXmvSSlJBQGDyw1H1bzTwkbQA47Q==
+  version "1.5.6"
+  resolved "https://registry.yarnpkg.com/obsidian-plugin-config/-/obsidian-plugin-config-1.5.6.tgz#7052488b875eef0a0b4dfa79dbc646ae00c572d4"
+  integrity sha512-CfW7ChmhjbziADY1A3g1xgf8oelYCuOz64/L6tAEg7D5DMT4J6B2RhXJS1vLUvref1v92kuZYAJgYaO0UaV9LA==
   dependencies:
     "@types/lodash" "^4.17.17"
     "@types/node" "^22.15.26"
