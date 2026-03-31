@@ -25,7 +25,9 @@ async function handleExistingTag(tag: string): Promise<boolean> {
 	// Get the existing tag message to show to the user
 	let existingMessage = '';
 	try {
-		existingMessage = execSync(`git tag -l -n999 ${tag}`, { encoding: 'utf8' }).trim();
+		existingMessage = execSync(`git tag -l -n999 ${tag}`, {
+			encoding: 'utf8'
+		}).trim();
 	} catch {
 		// If we can't get the message, continue anyway
 	}
