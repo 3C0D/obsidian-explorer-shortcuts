@@ -22,10 +22,21 @@ async function createReleaseNotesFile(tagMessage: string, tag: string): Promise<
 }
 
 async function handleExistingTag(tag: string): Promise<boolean> {
-	const confirmed = await askConfirmation(
-		`Tag ${tag} already exists. Do you want to replace it?`,
-		rl
-	);
+	// Get the existing tag message to show to the user
+	let existingMessage = '';
+	try {
+		existingMessage = execSync(`git tag -l -n999 ${tag}`, { encoding: 'utf8' }).trim();
+	} catch {
+		// If we can't get the message, continue anyway
+	}
+
+	let prompt = `Tag ${tag} already exists.`;
+	if (existingMessage) {
+		prompt += `\n\nExisting tag message:\n${existingMessage}\n`;
+	}
+	prompt += `\nDo you want to replace it?`;
+
+	const confirmed = await askConfirmation(prompt, rl);
 
 	if (!confirmed) {
 		console.log('Operation aborted');
