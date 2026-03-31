@@ -47,7 +47,7 @@
     "prettier": "latest",
     "semver": "latest",
     "tslib": "2.4.0",
-    "tsx": "latest",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.2"
   },
   "engines": {
