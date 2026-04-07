@@ -1,1 +1,1 @@
-inject
+fix open hovered file in explorer on top
