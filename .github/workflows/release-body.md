@@ -1,1 +1,1 @@
-fix open hovered file in explorer on top
+local modal. not injected anymore
