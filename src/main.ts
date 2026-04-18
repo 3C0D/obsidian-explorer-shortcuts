@@ -12,8 +12,8 @@ import {
 import type { ESSettings } from './types/global.js';
 
 export default class ExplorerShortcuts extends Plugin {
-	settings: ESSettings;
-	mousePosition: { x: number; y: number };
+	settings!: ESSettings;
+	mousePosition!: { x: number; y: number };
 	elementFromPoint: Element | null = null;
 	explorerfileContainer: Element | null = null;
 	explorerfolderContainer: Element | null = null;

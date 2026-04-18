@@ -42,7 +42,6 @@
     "jiti": "latest",
     "json-stringify-pretty-compact": "^4.0.0",
     "obsidian": "*",
-    "obsidian-plugin-config": "latest",
     "obsidian-typings": "latest",
     "prettier": "latest",
     "semver": "latest",

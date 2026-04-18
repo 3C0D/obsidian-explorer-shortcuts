@@ -2603,11 +2603,6 @@ object-keys@^1.1.1:
   resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.1.1.tgz#1c47f272df277f3b1daf061677d9c82e2322c60e"
   integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
 
-obsidian-plugin-config@latest:
-  version "1.5.9"
-  resolved "https://registry.yarnpkg.com/obsidian-plugin-config/-/obsidian-plugin-config-1.5.9.tgz#2e2ba988eaf5e10202c450b6a0a43e52152cb96d"
-  integrity sha512-K9JRfCMriBKbYhWclB7mlONsa+3Cjo4ujtMgfViAh3kKGpAhpcQSM+06ZTAaI9Yb90Eh9Y1t8HvXWJOEbRdH2Q==
-
 obsidian-typings@latest:
   version "5.18.0"
   resolved "https://registry.yarnpkg.com/obsidian-typings/-/obsidian-typings-5.18.0.tgz#b3daecf09b08209f70128076d902ae42fda0c3c9"

@@ -7,7 +7,7 @@ import { rename } from './rename.js';
 import { reveal, toggleCollapse } from './toggleCollapse.js';
 import { isOverExplorerNavContainer, getHoveredElement, getElPath } from './utils.js';
 import type ExplorerShortcuts from './main.js';
-import { showExplorerShortcutsModal } from './modal.js';
+import { showExplorerShortcutsModal } from './modals/modal.ts';
 import { showInOsExplorer } from './showInOsExplorer.js';
 import { Notice, TFile } from 'obsidian';
 

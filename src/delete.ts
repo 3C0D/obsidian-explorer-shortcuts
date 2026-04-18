@@ -1,6 +1,6 @@
 import { type App, Notice, TFile, TFolder } from 'obsidian';
 import type ExplorerShortcuts from './main.ts';
-import { confirmation } from 'obsidian-plugin-config';
+import { confirmation } from './modals/confirmation.ts';
 import { getExplorerView, getHoveredElement, getElPath } from './utils.ts';
 
 export async function deleteItem(
