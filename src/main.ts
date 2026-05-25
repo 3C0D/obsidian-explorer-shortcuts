@@ -26,7 +26,6 @@ export default class ExplorerShortcuts extends Plugin {
 	taggedItems: Set<Element> | null = null;
 
 	async onload(): Promise<void> {
-		console.log('Loading Explorer Shortcuts');
 		await this.loadSettings();
 		this.addSettingTab(new ESSettingTab(this.app, this));
 		this.app.workspace.onLayoutReady(this.registerDomEvents.bind(this));
@@ -34,6 +33,7 @@ export default class ExplorerShortcuts extends Plugin {
 
 	private registerDomEvents(): void {
 		this.registerDomEvent(document, 'mousemove', mouseMoveEvents.bind(this));
+		// true = capture phase: intercepts keydown events at document level before propagation
 		this.registerDomEvent(document, 'keydown', keyDown.bind(this), true);
 		this.registerDomEvent(
 			document,

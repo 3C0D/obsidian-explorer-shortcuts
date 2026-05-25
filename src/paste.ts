@@ -294,7 +294,10 @@ function incrementName(
 	}
 
 	const baseNewName = name || 'Untitled';
-	const newExt = type === 'file' ? ext || '.md' : '';
+	const isDotfile = name.startsWith('.') && ext === '';
+	// folder → no ext; dotfile (.gitignore, .env) → keep empty ext; 
+	// file with ext → keep it; file without ext → default to .md
+	const newExt = type === 'file' ? (isDotfile ? '' : ext || '.md') : '';
 
 	let counter = -1; // to start without number
 	let newName = baseNewName;
