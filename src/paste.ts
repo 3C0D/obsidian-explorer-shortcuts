@@ -277,7 +277,10 @@ export function getDestination(
 	const hovered = getHoveredElement(plugin);
 	if (!hovered) return;
 	const _path = getElPath(hovered);
-	return path.extname(_path) ? path.dirname(_path) : _path;
+	const ext = path.extname(_path);
+	const isDotfile = path.basename(_path).startsWith('.') && ext === '';
+	// has extension → file; dotfile (.gitignore, .env) → file; no ext → folder
+	return ext || isDotfile ? path.dirname(_path) : _path;
 }
 
 function incrementName(
@@ -295,7 +298,7 @@ function incrementName(
 
 	const baseNewName = name || 'Untitled';
 	const isDotfile = name.startsWith('.') && ext === '';
-	// folder → no ext; dotfile (.gitignore, .env) → keep empty ext; 
+	// folder → no ext; dotfile (.gitignore, .env) → keep empty ext;
 	// file with ext → keep it; file without ext → default to .md
 	const newExt = type === 'file' ? (isDotfile ? '' : ext || '.md') : '';
 
