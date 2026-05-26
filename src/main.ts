@@ -9,11 +9,11 @@ import {
 	isOverNavFile,
 	isOverNavFolder
 } from './utils.ts';
-import type { ESSettings } from './types/global.ts';
+import type { ESSettings, MousePosition } from './types/global.ts';
 
 export default class ExplorerShortcuts extends Plugin {
 	settings!: ESSettings;
-	mousePosition!: { x: number; y: number };
+	mousePosition!: MousePosition;
 	elementFromPoint: Element | null = null;
 	explorerfileContainer: Element | null = null;
 	explorerfolderContainer: Element | null = null;
@@ -25,10 +25,28 @@ export default class ExplorerShortcuts extends Plugin {
 	operation: Operation | null = null;
 	taggedItems: Set<Element> | null = null;
 
+	// Instance-specific throttle/debounce/state variables
+	lastNavigationTime = 0;
+	mouseMoveDebounceTimer: NodeJS.Timeout | null = null;
+	shouldProcessKeyUp = false;
+	applyToAll = false;
+
 	async onload(): Promise<void> {
-		await this.loadSettings();
+		try {
+			await this.loadSettings();
+		} catch (err) {
+			console.error('Failed to load settings:', err);
+			this.settings = Object.assign({}, DEFAULT_SETTINGS);
+		}
 		this.addSettingTab(new ESSettingTab(this.app, this));
 		this.app.workspace.onLayoutReady(this.registerDomEvents.bind(this));
+	}
+
+	onunload(): void {
+		if (this.mouseMoveDebounceTimer) {
+			clearTimeout(this.mouseMoveDebounceTimer);
+			this.mouseMoveDebounceTimer = null;
+		}
 	}
 
 	private registerDomEvents(): void {
@@ -51,7 +69,14 @@ export default class ExplorerShortcuts extends Plugin {
 	}
 }
 
+let isThrottling = false;
 function mouseMoveEvents(this: ExplorerShortcuts, e: MouseEvent): void {
+	if (isThrottling) return;
+	isThrottling = true;
+	window.requestAnimationFrame(() => {
+		isThrottling = false;
+	});
+
 	this.elementFromPoint = getEltFromMousePos(this, e);
 	if (!isOverExplorerNavContainer(this)) return;
 	this.explorerfolderContainer = isOverNavFolder(this);

@@ -26,32 +26,26 @@ export async function rename(plugin: ExplorerShortcuts, e: KeyboardEvent): Promi
 		if (!input) return;
 
 		// Disable space key in explorer while renaming
-		const handleKeyDown = (e: KeyboardEvent): void => {
-			if (e.key === ' ') {
-				e.stopPropagation();
-			}
-		};
-
-		input.addEventListener('keydown', handleKeyDown, true);
-
+		let cleaned = false;
 		const cleanup = (): void => {
+			if (cleaned) return;
+			cleaned = true;
 			plugin.renaming = false;
 			hovered.firstElementChild?.classList.remove('has-focus');
 			input.removeEventListener('keydown', handleKeyDown, true);
 		};
 
-		input.addEventListener('blur', cleanup, { once: true });
+		const handleKeyDown = (e: KeyboardEvent): void => {
+			if (e.key === ' ') {
+				e.stopPropagation();
+			} else if (e.key === 'Enter') {
+				cleanup();
+			}
+		};
 
-		// Also add a listener for the Enter key
-		input.addEventListener(
-			'keydown',
-			(e: KeyboardEvent): void => {
-				if (e.key === 'Enter') {
-					cleanup();
-				}
-			},
-			{ once: true }
-		);
+		input.addEventListener('keydown', handleKeyDown, true);
+
+		input.addEventListener('blur', cleanup, { once: true });
 
 		// Security: force the reset after a delay
 		setTimeout((): void => {

@@ -1,7 +1,7 @@
 import type { FileExplorerView } from 'obsidian-typings';
 import type ExplorerShortcuts from './main.ts';
 import { Operation } from './types/variables.ts';
-import { getHoveredElement, getNavFilesContainerItems } from './utils.ts';
+import { getHoveredElement, getNavFilesContainerItems, filterOutParentFolders } from './utils.ts';
 
 /**
  * Function to perform the copy or cut operation on the selected items
@@ -50,7 +50,7 @@ export function cut(plugin: ExplorerShortcuts): void {
 }
 
 export function resetOperations(plugin: ExplorerShortcuts): void {
-	const items = getNavFilesContainerItems();
+	const items = getNavFilesContainerItems(plugin);
 	items.forEach((item) => {
 		item.classList.remove('copy', 'cut');
 	});
@@ -73,7 +73,6 @@ function getSelectedExplorerItems(plugin: ExplorerShortcuts): Element[] {
 	if (!view) return [];
 
 	// Get all elements with the 'is-selected' class in the file explorer
-	const selectedElements: Element[] = [];
 	const fileItems = view.fileItems;
 	const candidateItems: {
 		path: string;
@@ -120,32 +119,12 @@ function getSelectedExplorerItems(plugin: ExplorerShortcuts): Element[] {
 		return [candidateItems[0].element];
 	}
 
-	// For multiple selections, filter out parent folders
-	const selectedFilePaths = candidateItems
-		.filter((item) => !item.isFolder)
-		.map((item) => item.path);
+	// For multiple selections, filter out parent folders using our utility helper
+	const filteredCandidates = filterOutParentFolders(
+		candidateItems,
+		(item) => item.path,
+		(item) => item.isFolder
+	);
 
-	// If we have selected files, exclude any folders that contain them
-	if (selectedFilePaths.length > 0) {
-		for (const candidate of candidateItems) {
-			if (candidate.isFolder) {
-				// For folders, only include if no selected files are inside this folder
-				const hasSelectedFilesInside = selectedFilePaths.some((filePath) =>
-					filePath.startsWith(candidate.path + '/')
-				);
-
-				if (!hasSelectedFilesInside) {
-					selectedElements.push(candidate.element);
-				}
-			} else {
-				// Always include files
-				selectedElements.push(candidate.element);
-			}
-		}
-	} else {
-		// If no files are selected, include all folders
-		selectedElements.push(...candidateItems.map((item) => item.element));
-	}
-
-	return selectedElements;
+	return filteredCandidates.map((item) => item.element);
 }

@@ -31,21 +31,4 @@
 	background-color: transparent !important;
 }
 
-/* @keyframes flash {
-    0% {
-        opacity: 1;
-    }
 
-    50% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 1;
-    }
-} */
-
-/* .nav-file-title.is-active.reveal {
-    background-color: rgb(101, 98, 75);
-    animation: flash 0.5s ease-in-out;
-} */

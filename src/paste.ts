@@ -1,4 +1,3 @@
-import type { App } from 'obsidian';
 import { normalizePath, TFile, TFolder, Notice, Modal, Setting } from 'obsidian';
 import * as path from 'path';
 import type ExplorerShortcuts from './main.ts';
@@ -7,13 +6,12 @@ import {
 	getExplorerFileItems,
 	getHoveredElement,
 	getPathEls,
-	showExplorerNotice
+	showExplorerNotice,
+	filterOutParentFolders
 } from './utils.ts';
 
 import { ConflictAction } from './types/variables.ts';
 import type { FileTreeItem, FolderTreeItem } from 'obsidian-typings';
-
-let applyToAll = false;
 
 export async function paste(plugin: ExplorerShortcuts): Promise<void> {
 	const items = getExplorerFileItems(plugin);
@@ -29,29 +27,17 @@ export async function paste(plugin: ExplorerShortcuts): Promise<void> {
 
 	// Filter out parent folders that contain selected files (same logic as in cut-copy.ts)
 	if (selectedItems.length > 1) {
-		const selectedFilePaths = selectedItems
-			.filter((item) => !item[1].el.classList.contains('nav-folder'))
-			.map((item) => item[0]);
-
-		if (selectedFilePaths.length > 0) {
-			selectedItems = selectedItems.filter((item) => {
-				const isFolder = item[1].el.classList.contains('nav-folder');
-				if (isFolder) {
-					// Only include folders that don't contain selected files
-					const hasSelectedFilesInside = selectedFilePaths.some((filePath) =>
-						filePath.startsWith(item[0] + '/')
-					);
-					return !hasSelectedFilesInside;
-				}
-				return true; // Always include files
-			});
-		}
+		selectedItems = filterOutParentFolders(
+			selectedItems,
+			(item) => item[0],
+			(item) => item[1].el.classList.contains('nav-folder')
+		);
 	}
 
 	const destDir = getDestination(plugin) ?? '/';
 
 	try {
-		applyToAll = false;
+		plugin.applyToAll = false;
 		const conflictingItems = await getConflictingItems(
 			plugin,
 			selectedItems,
@@ -67,9 +53,9 @@ export async function paste(plugin: ExplorerShortcuts): Promise<void> {
 
 			let shouldReplace = false;
 			if (conflictingItems.includes(itemPath)) {
-				if (!applyToAll || globalAction === null) {
+				if (!plugin.applyToAll || globalAction === null) {
 					const action = await chooseAction(
-						plugin.app,
+						plugin,
 						path.basename(itemPath),
 						conflictingItems.length
 					);
@@ -83,7 +69,7 @@ export async function paste(plugin: ExplorerShortcuts): Promise<void> {
 						return;
 					}
 
-					if (applyToAll) {
+					if (plugin.applyToAll) {
 						globalAction = action;
 					}
 
@@ -127,12 +113,12 @@ async function getConflictingItems(
 }
 
 async function chooseAction(
-	app: App,
+	plugin: ExplorerShortcuts,
 	filename: string,
 	conflictCount: number
 ): Promise<ConflictAction> {
 	return new Promise((resolve): void => {
-		const modal = new Modal(app);
+		const modal = new Modal(plugin.app);
 		modal.titleEl.textContent = `File "${filename}" already exists`;
 
 		let selectedAction = ConflictAction.Increment;
@@ -151,8 +137,8 @@ async function chooseAction(
 			new Setting(modal.contentEl)
 				.setName('Apply to all remaining files')
 				.addToggle((toggle) => {
-					toggle.setValue(applyToAll).onChange((value): void => {
-						applyToAll = value;
+					toggle.setValue(plugin.applyToAll).onChange((value): void => {
+						plugin.applyToAll = value;
 					});
 				});
 		}
@@ -284,7 +270,9 @@ export function getDestination(
 	const _path = getElPath(hovered);
 	const ext = path.extname(_path);
 	const isDotfile = path.basename(_path).startsWith('.') && ext === '';
-	// has extension → file; dotfile (.gitignore, .env) → file; no ext → folder
+	
+	// Determine target folder: if hovered item is a file (has extension or is a dotfile),
+	// use its parent directory; otherwise, use the folder path itself.
 	return ext || isDotfile ? path.dirname(_path) : _path;
 }
 
@@ -295,7 +283,7 @@ function incrementName(
 ): string {
 	const { dir, name, ext } = getPathEls(destPath);
 
-	// Fix the basePath construction - handle root directory properly
+	// Construct clean parent path prefix, ensuring root path is handled properly
 	let basePath = '';
 	if (dir && dir !== '.' && dir !== '/') {
 		basePath = dir.endsWith('/') ? dir : dir + '/';
@@ -303,17 +291,18 @@ function incrementName(
 
 	const baseNewName = name || 'Untitled';
 	const isDotfile = name.startsWith('.') && ext === '';
-	// folder → no ext; dotfile (.gitignore, .env) → keep empty ext;
-	// file with ext → keep it; file without ext → default to .md
+	
+	// Apply proper extension constraints based on item type
 	const newExt = type === 'file' ? (isDotfile ? '' : ext || '.md') : '';
 
-	let counter = -1; // to start without number
+	let counter = -1; // -1 allows checking the base name first without a suffix
 	let newName = baseNewName;
 	let newPath = normalizePath(basePath + newName + newExt);
 
 	const untitledRegex = /^(Untitled)(\s*(\d+))?$/;
 	const isUntitled = baseNewName.match(untitledRegex);
 
+	// Loop to increment suffix suffix until a unique available path is found
 	while (plugin.app.vault.getAbstractFileByPath(newPath)) {
 		counter++;
 

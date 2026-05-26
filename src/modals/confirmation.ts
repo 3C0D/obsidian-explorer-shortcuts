@@ -42,6 +42,7 @@ class ConfirmModal extends Modal {
 	}
 
 	onClose(): void {
+		this.confirm(false);
 		this.contentEl.empty();
 	}
 }

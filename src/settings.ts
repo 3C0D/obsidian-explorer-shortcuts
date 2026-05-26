@@ -1,11 +1,11 @@
 import type { App } from 'obsidian';
 import { PluginSettingTab, Setting } from 'obsidian';
-import type MyPlugin from './main.ts';
+import type ExplorerShortcuts from './main.ts';
 
 export class ESSettingTab extends PluginSettingTab {
 	constructor(
 		app: App,
-		public plugin: MyPlugin
+		public plugin: ExplorerShortcuts
 	) {
 		super(app, plugin);
 		this.plugin = plugin;

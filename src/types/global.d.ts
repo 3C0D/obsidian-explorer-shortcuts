@@ -8,7 +8,6 @@ declare module 'obsidian' {
 export interface ESSettings {
 	delConfirmFile: boolean;
 	delConfirmFolder: boolean;
-	focusNeeded: boolean;
 }
 
 export interface MousePosition {

@@ -1,5 +1,4 @@
-import type { FileView } from 'obsidian';
-import { Notice } from 'obsidian';
+import type { FileView, TFile } from 'obsidian';
 import type ExplorerShortcuts from './main.ts';
 import {
 	getElPath,
@@ -11,17 +10,13 @@ import {
 	unfoldFileItemParentFolder,
 	scrollToActiveEl,
 	getActiveExplorerFileItem,
-	showExplorerNotice
+	showExplorerNotice,
+	triggerMouseMove
 } from './utils.ts';
+import { type NavigationDirection } from './types/variables.ts';
+import type { FileExplorerView } from 'obsidian-typings';
 
-export type NavigationDirection = 'up' | 'down';
-
-// Throttling for smooth navigation
-let lastNavigationTime = 0;
 const NAVIGATION_THROTTLE = 200; // 200ms minimum between navigations
-
-// Debounce for mouse movement simulation
-let mouseMoveDebounceTimer: NodeJS.Timeout | null = null;
 const MOUSE_MOVE_DEBOUNCE = 500; // Wait 500ms after last navigation before triggering mouse move
 
 /**
@@ -30,18 +25,14 @@ const MOUSE_MOVE_DEBOUNCE = 500; // Wait 500ms after last navigation before trig
  */
 function triggerMouseMoveForNavigation(plugin: ExplorerShortcuts): void {
 	// Clear existing timer
-	if (mouseMoveDebounceTimer) {
-		clearTimeout(mouseMoveDebounceTimer);
+	if (plugin.mouseMoveDebounceTimer) {
+		clearTimeout(plugin.mouseMoveDebounceTimer);
 	}
 
 	// Set new timer to trigger mouse move after debounce period
-	mouseMoveDebounceTimer = setTimeout(() => {
-		const e = new MouseEvent('mousemove', {
-			clientX: plugin.mousePosition.x + 1,
-			clientY: plugin.mousePosition.y + 1
-		});
-		document.dispatchEvent(e);
-		mouseMoveDebounceTimer = null;
+	plugin.mouseMoveDebounceTimer = setTimeout(() => {
+		triggerMouseMove(plugin);
+		plugin.mouseMoveDebounceTimer = null;
 	}, MOUSE_MOVE_DEBOUNCE);
 }
 
@@ -51,25 +42,24 @@ export async function navigateOverExplorer(
 ): Promise<void> {
 	// Throttle navigation for smooth experience
 	const currentTime = Date.now();
-	if (currentTime - lastNavigationTime < NAVIGATION_THROTTLE) {
+	if (currentTime - plugin.lastNavigationTime < NAVIGATION_THROTTLE) {
 		return; // Skip if too soon after last navigation
 	}
-	lastNavigationTime = currentTime;
+	plugin.lastNavigationTime = currentTime;
 
 	await ensureActiveElementVisible(plugin);
 
 	const nextElement = getNextElement(plugin, direction);
 
 	if (!nextElement) {
-		new Notice('End of list', 800);
 		return;
 	}
 
 	if (isNavFile(nextElement)) {
 		await openNext(plugin, nextElement);
 	} else {
-		// Si c'est un dossier, on ne fait rien de plus
-		// Cela empêche le focus de passer à l'éditeur
+		// If it's a folder, do nothing else
+		// This prevents focus from switching to the editor
 		await scrollToActiveEl(plugin);
 	}
 
@@ -81,7 +71,7 @@ async function ensureActiveElementVisible(plugin: ExplorerShortcuts): Promise<vo
 	const activeItem = getActiveExplorerFileItem(plugin);
 	if (!activeItem) return;
 
-	const [path, _] = activeItem;
+	const [path] = activeItem;
 
 	// Try to unfold parent folders twice to ensure visibility
 	for (let i = 0; i < 2; i++) {
@@ -104,14 +94,14 @@ function getNextElement(
 	plugin: ExplorerShortcuts,
 	direction: NavigationDirection
 ): Element | undefined {
-	let filteredList = getFilteredExplorerItems();
+	let filteredList = getFilteredExplorerItems(plugin);
 	if (filteredList.length === 0) return undefined;
 
 	let activeIndex = findActiveIndex(filteredList);
 	if (activeIndex === -1) {
 		activeIndex = handleInactiveFile(plugin);
 		if (activeIndex === -1) return undefined;
-		filteredList = getFilteredExplorerItems(); // Refresh list after changes
+		filteredList = getFilteredExplorerItems(plugin); // Refresh list after changes
 	}
 
 	return findNextValidElement(plugin, filteredList, activeIndex, direction);
@@ -132,12 +122,12 @@ function handleInactiveFile(plugin: ExplorerShortcuts): number {
 	unfoldFileItemParentFolder(plugin, activeItem[1].el);
 
 	// Refresh the list after expanding
-	const updatedList = getFilteredExplorerItems();
+	const updatedList = getFilteredExplorerItems(plugin);
 	return updatedList.findIndex((el) => el.children[0].classList.contains('is-active'));
 }
 
-function getFilteredExplorerItems(): Element[] {
-	const elements = getNavFilesContainerItems();
+function getFilteredExplorerItems(plugin: ExplorerShortcuts): Element[] {
+	const elements = getNavFilesContainerItems(plugin);
 	return Array.from(elements).filter(
 		(element) =>
 			!element.children[0].classList.contains('is-unsupported') &&
@@ -227,7 +217,7 @@ function handleFoldedFolder(
 ): { newIndex: number | null; newList: Element[] } {
 	const initialLength = filteredList.length;
 	unfoldFileItemParentFolder(plugin, folderElement);
-	const newList = getFilteredExplorerItems();
+	const newList = getFilteredExplorerItems(plugin);
 	const newLength = newList.length;
 	const added = newLength - initialLength;
 	const folderIndex = newList.indexOf(folderElement);
@@ -264,13 +254,11 @@ function removeFocusFromExplorer(): void {
 /**
  * Reveal the active file in the explorer (like the reveal function but without focus change)
  */
-async function revealActiveFile(plugin: ExplorerShortcuts): Promise<void> {
+async function revealActiveFile(plugin: ExplorerShortcuts, file: TFile): Promise<void> {
 	try {
-		// Run the reveal command twice to ensure it works on long trees
-
-		plugin.app.commands.executeCommandById('file-explorer:reveal-active-file');
-
-		plugin.app.commands.executeCommandById('file-explorer:reveal-active-file');
+		const leaf = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
+				const view = leaf?.view as FileExplorerView;
+				view?.revealInFolder(file);
 
 		// Wait a bit for the reveal to complete
 		await new Promise((resolve) => setTimeout(resolve, 100));
@@ -305,12 +293,12 @@ export async function openNext(
 	await new Promise((resolve) => setTimeout(resolve, 100));
 
 	// Reveal the file in explorer to sync the selection
-	await revealActiveFile(plugin);
+	await revealActiveFile(plugin, item);
 
 	// Scroll again after reveal to ensure proper positioning
 	await scrollToActiveEl(plugin);
 
-	// Remettre le focus sur l'explorateur de fichiers
+	// Reset focus back on the file explorer
 	const fileExplorer = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
 	if (fileExplorer) {
 		plugin.app.workspace.setActiveLeaf(fileExplorer, { focus: true });

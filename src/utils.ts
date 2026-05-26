@@ -2,9 +2,13 @@ import type { FileExplorerView, FileTreeItem, FolderTreeItem } from 'obsidian-ty
 import type ExplorerShortcuts from './main.ts';
 import * as path from 'path';
 import { ElementType } from './types/variables.ts';
+import type { PathElements } from './types/global.ts';
 
 ///////// elements ////////
 
+/**
+ * Extracts the file or folder vault path from the given DOM element.
+ */
 export function getElPath(element: Element | null): string {
 	return (
 		element?.children[0]?.getAttribute('data-path') ??
@@ -13,23 +17,29 @@ export function getElPath(element: Element | null): string {
 	);
 }
 
+/**
+ * Returns the currently hovered explorer file or folder DOM element.
+ */
 export function getHoveredElement(plugin: ExplorerShortcuts): Element | null {
 	return plugin.explorerfileContainer || plugin.explorerfolderContainer || null;
 }
 
+/**
+ * Updates mouse coordinates and returns the DOM element directly beneath the cursor.
+ */
 export function getEltFromMousePos(
 	plugin: ExplorerShortcuts,
 	event: MouseEvent
 ): Element | null {
 	plugin.mousePosition = { x: event.clientX, y: event.clientY };
-	if (plugin.mousePosition) {
-		return document.elementFromPoint(plugin.mousePosition.x, plugin.mousePosition.y);
-	}
-	return null;
+	return document.elementFromPoint(plugin.mousePosition.x, plugin.mousePosition.y);
 }
 
 ///////// tree items elements //////////
 
+/**
+ * Retrieves the closest ancestor matching the specific element type class.
+ */
 export function getElementByType(
 	element: Element | null,
 	type: ElementType
@@ -62,11 +72,11 @@ export const isOverNavFilesContainer = (plugin: ExplorerShortcuts): Element | nu
 	return plugin.elementFromPoint?.closest('.nav-files-container') ?? null;
 };
 
-export function getNavFilesContainerItems(): NodeListOf<Element> {
-	const elements = document.querySelectorAll(
-		'.nav-files-container .nav-file, .nav-files-container .nav-folder'
-	);
-	return elements;
+export function getNavFilesContainerItems(plugin: ExplorerShortcuts): Element[] {
+	const view = getExplorerView(plugin);
+	const container = view?.containerEl?.querySelector('.nav-files-container');
+	if (!container) return [];
+	return Array.from(container.querySelectorAll('.nav-file, .nav-folder'));
 }
 
 export async function scrollToActiveEl(plugin: ExplorerShortcuts): Promise<void> {
@@ -98,6 +108,9 @@ export function getActiveExplorerFileItem(
 }
 
 // TODO: see the logic again.
+/**
+ * Traverses the file items and sets the state of the target's parent folder to expanded (uncollapsed).
+ */
 export function unfoldFileItemParentFolder(
 	plugin: ExplorerShortcuts,
 	element: Element | null
@@ -115,12 +128,6 @@ export function unfoldFileItemParentFolder(
 		}
 	}
 }
-
-// Unused - can be commented out
-// export function collapseAllExplorerFolders(plugin: ExplorerShortcuts, collapse = true): void {
-//     const items = getExplorerFileItems(plugin);
-//     items?.filter((item) => isNavFolder(item[1]?.el)).forEach(async (item) => await item[1].setCollapsed(collapse, true))
-// }
 
 //////////// explorer ///////////////
 
@@ -155,11 +162,7 @@ export function getActiveExplorerEl(plugin: ExplorerShortcuts): HTMLElement | nu
 
 ///////////////// other ////////////////
 
-export function getPathEls(_path: string): {
-	dir: string;
-	name: string;
-	ext: string;
-} {
+export function getPathEls(_path: string): PathElements {
 	return {
 		dir: path.dirname(_path),
 		name: path.basename(_path, path.extname(_path)),
@@ -200,6 +203,44 @@ export function showExplorerNotice(
 		tooltip.style.opacity = '0';
 		setTimeout(() => tooltip.remove(), 300);
 	}, duration);
+}
+
+export function triggerMouseMove(plugin: ExplorerShortcuts): void {
+	if (!plugin.mousePosition) return;
+	const e = new MouseEvent('mousemove', {
+		clientX: plugin.mousePosition.x + 1,
+		clientY: plugin.mousePosition.y + 1
+	});
+	document.dispatchEvent(e);
+}
+
+/**
+ * Filters a list of items to exclude parent folders if any of their descendant files are also in the list.
+ * This prevents performing redundant operations (e.g. copying both a folder and a file inside it).
+ */
+export function filterOutParentFolders<T>(
+	items: T[],
+	getPath: (item: T) => string,
+	isFolder: (item: T) => boolean
+): T[] {
+	if (items.length <= 1) return items;
+
+	const filePaths = items
+		.filter((item) => !isFolder(item))
+		.map((item) => getPath(item));
+
+	if (filePaths.length === 0) return items;
+
+	return items.filter((item) => {
+		if (isFolder(item)) {
+			const itemPath = getPath(item);
+			const hasSelectedFilesInside = filePaths.some((filePath) =>
+				filePath.startsWith(itemPath + '/')
+			);
+			return !hasSelectedFilesInside;
+		}
+		return true;
+	});
 }
 
 ////////////////Annexe////////////////////////

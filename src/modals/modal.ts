@@ -21,8 +21,8 @@ export function showExplorerShortcutsModal(app: App): void {
 
 	const modal = new Modal(app);
 	modal.titleEl.textContent = 'Explorer shortcuts reminder';
-	modal.contentEl.innerHTML = shortcuts
-		.map((shortcut) => `<p>${shortcut}</p>`)
-		.join('');
+	shortcuts.forEach((shortcut) => {
+		modal.contentEl.createEl('p', { text: shortcut });
+	});
 	modal.open();
 }

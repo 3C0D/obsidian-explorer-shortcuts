@@ -1,8 +1,6 @@
-import { exec } from 'child_process';
 import type ExplorerShortcuts from './main.ts';
 import { getElPath, getHoveredElement } from './utils.ts';
 import * as path from 'path';
-import { Platform } from 'obsidian';
 
 export async function showInOsExplorer(
 	plugin: ExplorerShortcuts,
@@ -30,11 +28,7 @@ async function openDirectoryInFileManager(
 	const vaultPath = plugin.app.vault.adapter.basePath;
 	const dirPath = path.join(vaultPath, filePath);
 	try {
-		if (Platform.isWin) {
-			exec(`explorer.exe /select,"${dirPath.replace(/\//g, '\\')}"`);
-		} else {
-			shell.showItemInFolder(dirPath);
-		}
+		shell.showItemInFolder(dirPath);
 	} catch (err) {
 		console.log(err);
 	}
