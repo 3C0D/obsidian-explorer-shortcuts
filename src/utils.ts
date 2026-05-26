@@ -1,7 +1,7 @@
 import type { FileExplorerView, FileTreeItem, FolderTreeItem } from 'obsidian-typings';
-import type ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.ts';
 import * as path from 'path';
-import { ElementType } from './types/variables.js';
+import { ElementType } from './types/variables.ts';
 
 ///////// elements ////////
 
@@ -137,8 +137,7 @@ export function isOverEditor(plugin: ExplorerShortcuts): Element | null {
 
 export function getExplorerView(plugin: ExplorerShortcuts): FileExplorerView {
 	const { workspace } = plugin.app;
-	return workspace.getLeavesOfType('file-explorer')?.first()
-		?.view as unknown as FileExplorerView;
+	return workspace.getLeavesOfType('file-explorer')?.first()?.view as FileExplorerView;
 }
 
 export function getExplorerFileItems(

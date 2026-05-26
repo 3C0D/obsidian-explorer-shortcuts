@@ -1,6 +1,6 @@
 import { TFile, TFolder } from 'obsidian';
-import type ExplorerShortcuts from './main.js';
-import { getElPath, getExplorerView, getHoveredElement } from './utils.js';
+import type ExplorerShortcuts from './main.ts';
+import { getElPath, getExplorerView, getHoveredElement } from './utils.ts';
 
 export async function createNewItem(
 	plugin: ExplorerShortcuts,

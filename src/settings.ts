@@ -1,6 +1,6 @@
 import type { App } from 'obsidian';
 import { PluginSettingTab, Setting } from 'obsidian';
-import type MyPlugin from './main.js';
+import type MyPlugin from './main.ts';
 
 export class ESSettingTab extends PluginSettingTab {
 	constructor(

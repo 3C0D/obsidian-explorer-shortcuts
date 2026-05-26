@@ -1,16 +1,16 @@
 import type { App } from 'obsidian';
 import { normalizePath, TFile, TFolder, Notice, Modal, Setting } from 'obsidian';
 import * as path from 'path';
-import type ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.ts';
 import {
 	getElPath,
 	getExplorerFileItems,
 	getHoveredElement,
 	getPathEls,
 	showExplorerNotice
-} from './utils.js';
+} from './utils.ts';
 
-import { ConflictAction } from './types/variables.js';
+import { ConflictAction } from './types/variables.ts';
 import type { FileTreeItem, FolderTreeItem } from 'obsidian-typings';
 
 let applyToAll = false;

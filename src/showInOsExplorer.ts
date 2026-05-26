@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
-import type ExplorerShortcuts from './main.js';
-import { getElPath, getHoveredElement } from './utils.js';
+import type ExplorerShortcuts from './main.ts';
+import { getElPath, getHoveredElement } from './utils.ts';
 import * as path from 'path';
 import { Platform } from 'obsidian';
 

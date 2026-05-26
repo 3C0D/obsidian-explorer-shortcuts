@@ -1,14 +1,14 @@
-import { copy, cut, resetOperations } from './cut-copy.js';
-import { deleteItem, triggerDelete } from './delete.js';
-import { navigateOverExplorer } from './navigateOverExplorer.js';
-import { createNewItem } from './newFileFolder.js';
-import { paste } from './paste.js';
-import { rename } from './rename.js';
-import { reveal, toggleCollapse } from './toggleCollapse.js';
-import { isOverExplorerNavContainer, getHoveredElement, getElPath } from './utils.js';
-import type ExplorerShortcuts from './main.js';
+import { copy, cut, resetOperations } from './cut-copy.ts';
+import { deleteItem, triggerDelete } from './delete.ts';
+import { navigateOverExplorer } from './navigateOverExplorer.ts';
+import { createNewItem } from './newFileFolder.ts';
+import { paste } from './paste.ts';
+import { rename } from './rename.ts';
+import { reveal, toggleCollapse } from './toggleCollapse.ts';
+import { isOverExplorerNavContainer, getHoveredElement, getElPath } from './utils.ts';
+import type ExplorerShortcuts from './main.ts';
 import { showExplorerShortcutsModal } from './modals/modal.ts';
-import { showInOsExplorer } from './showInOsExplorer.js';
+import { showInOsExplorer } from './showInOsExplorer.ts';
 import { Notice, TFile } from 'obsidian';
 
 let goToUp = false; // don't run up if not good key

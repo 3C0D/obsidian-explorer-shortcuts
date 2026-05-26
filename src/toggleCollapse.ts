@@ -1,4 +1,4 @@
-import type ExplorerShortcuts from './main.js';
+import type ExplorerShortcuts from './main.ts';
 
 const REVEAL_TIMEOUT = 50;
 

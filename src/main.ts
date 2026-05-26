@@ -1,15 +1,15 @@
 import { Plugin } from 'obsidian';
-import type { Operation } from './types/variables.js';
-import { DEFAULT_SETTINGS } from './types/variables.js';
-import { ESSettingTab } from './settings.js';
-import { keyDown, keyUp } from './pressKey.js';
+import type { Operation } from './types/variables.ts';
+import { DEFAULT_SETTINGS } from './types/variables.ts';
+import { ESSettingTab } from './settings.ts';
+import { keyDown, keyUp } from './pressKey.ts';
 import {
 	getEltFromMousePos,
 	isOverExplorerNavContainer,
 	isOverNavFile,
 	isOverNavFolder
-} from './utils.js';
-import type { ESSettings } from './types/global.js';
+} from './utils.ts';
+import type { ESSettings } from './types/global.ts';
 
 export default class ExplorerShortcuts extends Plugin {
 	settings!: ESSettings;
