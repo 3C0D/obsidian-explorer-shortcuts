@@ -221,15 +221,13 @@ async function safeCopy(
 	const file = item[1].file;
 	if (file instanceof TFile) {
 		if (replace) {
-			const content = await plugin.app.vault.adapter.read(file.path);
-			await plugin.app.vault.adapter.write(newPath, content);
-		} else {
-			await plugin.app.vault.copy(file, newPath);
+			await plugin.app.vault.adapter.remove(newPath);
 		}
+		// Read as binary to handle all file types (text, binary, dotfiles)
+		const content = await plugin.app.vault.adapter.readBinary(file.path);
+		await plugin.app.vault.createBinary(normalizePath(newPath), content);
 	} else {
-		// It's a folder - use the file as TFolder
-		const folder = file as unknown as TFolder;
-		await safeCopyFolder(plugin, folder, newPath, replace);
+		await safeCopyFolder(plugin, file as unknown as TFolder, newPath, replace);
 	}
 }
 
@@ -247,7 +245,8 @@ async function safeCopyFolder(
 	for (const child of itemFile.children) {
 		const childNewPath = normalizePath(path.join(newPath, child.name));
 		if (child instanceof TFile) {
-			await plugin.app.vault.copy(child, childNewPath);
+			const content = await plugin.app.vault.adapter.readBinary(child.path);
+			await plugin.app.vault.createBinary(childNewPath, content);
 		} else if (child instanceof TFolder) {
 			await safeCopyFolder(plugin, child, childNewPath, replace);
 		}
@@ -260,14 +259,20 @@ async function safeCut(
 	newPath: string,
 	replace: boolean
 ): Promise<void> {
-	if (item[1].file instanceof TFile) {
-		if (replace) {
+	const file = item[1].file;
+	const srcPath = file instanceof TFile ? file.path : (file as unknown as TFolder).path;
+
+	if (replace) {
+		if (file instanceof TFile) {
 			await plugin.app.vault.adapter.remove(newPath);
+		} else {
+			await plugin.app.vault.adapter.rmdir(newPath, true);
 		}
-		await plugin.app.fileManager.renameFile(item[1].file, newPath);
-	} else {
-		await plugin.app.vault.rename(item[1].file as unknown as TFolder, newPath);
 	}
+
+	// Use adapter.rename() directly — patched by CodeFilesPlugin to handle dotfile
+	// visibility updates, revealedItems sync, and drag-and-drop path correction.
+	await plugin.app.vault.adapter.rename(srcPath, normalizePath(newPath));
 }
 
 export function getDestination(
