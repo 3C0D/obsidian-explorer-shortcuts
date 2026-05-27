@@ -268,9 +268,47 @@ export function blinkElement(el: HTMLElement, times: number, interval: number): 
 	}, interval);
 }
 
-export async function revealFileInExplorer(plugin: ExplorerShortcuts, file: TFile, timeout = 100): Promise<void> {
-	const leaf = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
-	const view = leaf?.view as FileExplorerView;
-	view?.revealInFolder(file);
-	await new Promise((resolve) => setTimeout(resolve, timeout));
+/**
+ * Checks whether a DOM element is fully visible within its scroll container.
+ * Uses viewport-relative coordinates (getBoundingClientRect) for both elements.
+ * The container's rect acts as the visible "window" — anything outside it
+ * is hidden by CSS overflow, even if it exists in the DOM.
+ * @param el - The element to check (e.g. a file item row).
+ * @param container - The scrollable container (e.g. .nav-files-container).
+ */
+function isElementVisible(el: HTMLElement, container: HTMLElement): boolean {
+    const elRect = el.getBoundingClientRect();        // position of the file row in the viewport
+    const containerRect = container.getBoundingClientRect(); // visible window of the scroll container
+    return elRect.top >= containerRect.top && elRect.bottom <= containerRect.bottom;
+}
+
+/**
+ * Reveals a file in the file explorer, retrying if the element is not visible in the viewport.
+ * @param plugin - The plugin instance.
+ * @param file - The file to reveal.
+ * @param timeout - Delay in ms between each attempt.
+ * @param maxRetries - Maximum number of reveal attempts.
+ */
+export async function revealFileInExplorer(
+    plugin: ExplorerShortcuts,
+    file: TFile,
+    timeout = 100,
+    maxRetries = 3
+): Promise<void> {
+    const leaf = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
+    const view = leaf?.view as FileExplorerView;
+    if (!view) return;
+
+    const container = view.containerEl.querySelector('.nav-files-container') as HTMLElement | null;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        view.revealInFolder(file);
+        await new Promise((resolve) => setTimeout(resolve, timeout));
+
+        // If we can't locate the element or container, assume success and bail
+        const fileItem = view.fileItems?.[file.path];
+        if (!fileItem?.el || !container) break;
+
+        if (isElementVisible(fileItem.el, container)) break;
+    }
 }

@@ -47,8 +47,10 @@ async function getConfirmed(app: App, itemFile: TFile | TFolder): Promise<boolea
 }
 
 export function triggerDelete(plugin: ExplorerShortcuts): void {
-	// trigger a mouse move event to refresh the selectedElements after a delay
-	setTimeout(() => {
+	// Refresh selected elements after deletion
+	// Uses the same timer slot cleaned up in onunload()
+	plugin.mouseMoveDebounceTimer = setTimeout(() => {
 		triggerMouseMove(plugin);
+		plugin.mouseMoveDebounceTimer = null;
 	}, 70);
 }
