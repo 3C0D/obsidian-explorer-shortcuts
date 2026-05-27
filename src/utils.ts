@@ -3,6 +3,7 @@ import type ExplorerShortcuts from './main.ts';
 import * as path from 'path';
 import { ElementType } from './types/variables.ts';
 import type { PathElements } from './types/global.ts';
+import type { TFile } from 'obsidian';
 
 ///////// elements ////////
 
@@ -265,4 +266,11 @@ export function blinkElement(el: HTMLElement, times: number, interval: number): 
 			el.classList.remove('reveal');
 		}
 	}, interval);
+}
+
+export async function revealFileInExplorer(plugin: ExplorerShortcuts, file: TFile, timeout = 100): Promise<void> {
+	const leaf = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
+	const view = leaf?.view as FileExplorerView;
+	view?.revealInFolder(file);
+	await new Promise((resolve) => setTimeout(resolve, timeout));
 }

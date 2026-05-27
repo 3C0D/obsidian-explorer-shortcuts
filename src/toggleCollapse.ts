@@ -1,9 +1,6 @@
 import type { TFile } from 'obsidian';
 import type ExplorerShortcuts from './main.ts';
-import { getExplorerView, triggerMouseMove } from './utils.ts';
-import type { FileExplorerView } from 'obsidian-typings';
-
-const REVEAL_TIMEOUT = 50;
+import { getExplorerView, triggerMouseMove, revealFileInExplorer } from './utils.ts';
 
 export function toggleCollapse(plugin: ExplorerShortcuts): void {
 	// Target the toggle collapse/expand button based on its visual position.
@@ -30,21 +27,15 @@ export function toggleCollapse(plugin: ExplorerShortcuts): void {
 	}
 }
 
-// it also exist in the API revealInFolder. to see...
-export function reveal(plugin: ExplorerShortcuts, file: TFile): void {
+export async function reveal(plugin: ExplorerShortcuts, file: TFile): Promise<void> {
 	try {
-		const leaf = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
-		const view = leaf?.view as FileExplorerView;
-		view?.revealInFolder(file);
-		// Focus on active leaf after a short delay to ensure UI has updated
-		setTimeout((): void => {
-			const activeLeaf = plugin.app.workspace.getLeaf(false);
-			if (activeLeaf) {
-				plugin.app.workspace.setActiveLeaf(activeLeaf, { focus: true });
-			} else {
-				console.warn('No active leaf found');
-			}
-		}, REVEAL_TIMEOUT);
+		await revealFileInExplorer(plugin, file);
+		const activeLeaf = plugin.app.workspace.getLeaf(false);
+		if (activeLeaf) {
+			plugin.app.workspace.setActiveLeaf(activeLeaf, { focus: true });
+		} else {
+			console.warn('No active leaf found');
+		}
 	} catch (error) {
 		console.error('Failed to reveal active file:', error);
 	}

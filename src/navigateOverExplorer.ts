@@ -1,4 +1,4 @@
-import type { FileView, TFile } from 'obsidian';
+import type { FileView } from 'obsidian';
 import type ExplorerShortcuts from './main.ts';
 import {
 	getElPath,
@@ -11,10 +11,10 @@ import {
 	scrollToActiveEl,
 	getActiveExplorerFileItem,
 	showExplorerNotice,
-	triggerMouseMove
+	triggerMouseMove,
+	revealFileInExplorer
 } from './utils.ts';
 import { type NavigationDirection } from './types/variables.ts';
-import type { FileExplorerView } from 'obsidian-typings';
 
 const NAVIGATION_THROTTLE = 200; // 200ms minimum between navigations
 const MOUSE_MOVE_DEBOUNCE = 500; // Wait 500ms after last navigation before triggering mouse move
@@ -251,22 +251,6 @@ function removeFocusFromExplorer(): void {
 	});
 }
 
-/**
- * Reveal the active file in the explorer (like the reveal function but without focus change)
- */
-async function revealActiveFile(plugin: ExplorerShortcuts, file: TFile): Promise<void> {
-	try {
-		const leaf = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
-				const view = leaf?.view as FileExplorerView;
-				view?.revealInFolder(file);
-
-		// Wait a bit for the reveal to complete
-		await new Promise((resolve) => setTimeout(resolve, 100));
-	} catch (error) {
-		console.error('Failed to reveal active file:', error);
-	}
-}
-
 export async function openNext(
 	plugin: ExplorerShortcuts,
 	next: Element | null
@@ -293,7 +277,7 @@ export async function openNext(
 	await new Promise((resolve) => setTimeout(resolve, 100));
 
 	// Reveal the file in explorer to sync the selection
-	await revealActiveFile(plugin, item);
+	await revealFileInExplorer(plugin, item);
 
 	// Scroll again after reveal to ensure proper positioning
 	await scrollToActiveEl(plugin);
