@@ -8,13 +8,13 @@ export async function showInOsExplorer(
 ): Promise<void> {
 	if (!isOverExplorerNavContainer) return;
 
-	let path = '/';
+	let filePath = '/';
 	const hoveredElement = getHoveredElement(plugin);
 	if (hoveredElement) {
-		path = getElPath(hoveredElement);
+		filePath = getElPath(hoveredElement);
 	}
 
-	openDirectoryInFileManager(plugin, path);
+	openDirectoryInFileManager(plugin, filePath);
 }
 
 async function openDirectoryInFileManager(
@@ -22,14 +22,15 @@ async function openDirectoryInFileManager(
 	filePath: string
 ): Promise<void> {
 	const shell = window.electron.shell;
-	if (path.extname(filePath) !== '') {
-		filePath = path.dirname(filePath);
-	}
 	const vaultPath = plugin.app.vault.adapter.basePath;
-	const dirPath = path.join(vaultPath, filePath);
+
+	const targetDir = path.extname(filePath) !== ''
+		? path.join(vaultPath, path.dirname(filePath)) // file → open its parent dir
+		: path.join(vaultPath, filePath);               // folder → open it directly
+
 	try {
-		shell.showItemInFolder(dirPath);
+		shell.openPath(targetDir);
 	} catch (err) {
-		console.log(err);
+		console.error('[ExplorerShortcuts] openDirectoryInFileManager:', err);
 	}
 }

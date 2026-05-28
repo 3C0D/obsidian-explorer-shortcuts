@@ -7,7 +7,7 @@ import {
 	isNavFile,
 	isNavFolder,
 	isNavFolded,
-	unfoldFileItemParentFolder,
+	unfoldFolderAtPath,
 	scrollToActiveEl,
 	getActiveExplorerFileItem,
 	showExplorerNotice,
@@ -119,7 +119,7 @@ function handleInactiveFile(plugin: ExplorerShortcuts): number {
 
 	if (!activeItem) return -1;
 
-	unfoldFileItemParentFolder(plugin, activeItem[1].el);
+	unfoldFolderAtPath(plugin, activeItem[1].el);
 
 	// Refresh the list after expanding
 	const updatedList = getFilteredExplorerItems(plugin);
@@ -216,7 +216,7 @@ function handleFoldedFolder(
 	direction: NavigationDirection
 ): { newIndex: number | null; newList: Element[] } {
 	const initialLength = filteredList.length;
-	unfoldFileItemParentFolder(plugin, folderElement);
+	unfoldFolderAtPath(plugin, folderElement);
 	const newList = getFilteredExplorerItems(plugin);
 	const newLength = newList.length;
 	const added = newLength - initialLength;

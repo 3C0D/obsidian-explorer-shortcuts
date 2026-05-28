@@ -108,11 +108,10 @@ export function getActiveExplorerFileItem(
 	return activeItem;
 }
 
-// TODO: see the logic again.
 /**
- * Traverses the file items and sets the state of the target's parent folder to expanded (uncollapsed).
+ * Expands (uncollapses) the folder item whose vault path exactly matches the given element's path.
  */
-export function unfoldFileItemParentFolder(
+export function unfoldFolderAtPath(
 	plugin: ExplorerShortcuts,
 	element: Element | null
 ): void {
@@ -120,7 +119,7 @@ export function unfoldFileItemParentFolder(
 	const items = getExplorerFileItems(plugin);
 	if (!items) return;
 	for (const item of items) {
-		if (item[0].includes(dirPath)) {
+		if (item[0] === dirPath) {
 			// Only folders can be collapsed
 			if ('setCollapsed' in item[1]) {
 				item[1].setCollapsed(false, true);
