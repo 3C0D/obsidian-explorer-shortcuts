@@ -69,13 +69,7 @@ export default class ExplorerShortcuts extends Plugin {
 	}
 }
 
-let isThrottling = false;
 function mouseMoveEvents(this: ExplorerShortcuts, e: MouseEvent): void {
-	if (isThrottling) return;
-	isThrottling = true;
-	window.requestAnimationFrame(() => {
-		isThrottling = false;
-	});
 
 	this.elementFromPoint = getEltFromMousePos(this, e);
 	if (!isOverExplorerNavContainer(this)) return;
