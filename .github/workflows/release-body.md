@@ -1,1 +1,1 @@
-fix open in explorer
+fixed bug introduced by opus! it was over engineered
