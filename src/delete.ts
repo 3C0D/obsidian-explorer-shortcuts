@@ -37,7 +37,12 @@ export async function deleteItem(
 
 	tree.selectItem(hoveredItem);
 	tree.handleDeleteSelectedItems(e);
-	const text = itemFile instanceof TFile ? 'File' : 'Folder';
+	let text = 'Folder';
+	if (itemFile instanceof TFile) {
+		text = 'File';
+	} else if ((itemFile as TFolder).children.length === 0) {
+		text = 'Empty folder';
+	}
 	new Notice(`${text} removed: ` + itemFile.name, 3500);
 	return true;
 }
@@ -48,9 +53,10 @@ async function getConfirmed(app: App, itemFile: TFile | TFolder): Promise<boolea
 
 export function triggerDelete(plugin: ExplorerShortcuts): void {
 	// Refresh selected elements after deletion
+	triggerMouseMove(plugin);
 	// Uses the same timer slot cleaned up in onunload()
 	plugin.mouseMoveDebounceTimer = setTimeout(() => {
 		triggerMouseMove(plugin);
 		plugin.mouseMoveDebounceTimer = null;
-	}, 70);
+	}, 150);
 }
