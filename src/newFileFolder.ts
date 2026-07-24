@@ -1,38 +1,7 @@
 import { TFile, TFolder } from 'obsidian';
 import type ExplorerShortcuts from './main.ts';
-import { getElPath, getExplorerView, getHoveredElement } from './utils.ts';
+import { getElPath, getExplorerView, getHoveredElement, triggerMouseMove } from './utils.ts';
 
-function waitForElement(
-	parent: HTMLElement | Document,
-	selector: string,
-	timeout = 10000
-): Promise<HTMLElement> {
-	return new Promise((resolve, reject) => {
-		const existing = parent.querySelector(selector);
-		if (existing) {
-			return resolve(existing as HTMLElement);
-		}
-
-		const observer = new MutationObserver(() => {
-			const el = parent.querySelector(selector);
-			if (el) {
-				observer.disconnect();
-				clearTimeout(timer);
-				resolve(el as HTMLElement);
-			}
-		});
-
-		observer.observe(parent instanceof Document ? parent.body : parent, {
-			childList: true,
-			subtree: true
-		});
-
-		const timer = setTimeout(() => {
-			observer.disconnect();
-			reject(new Error(`Timeout waiting for element: ${selector}`));
-		}, timeout);
-	});
-}
 
 export async function createNewItem(
 	plugin: ExplorerShortcuts,
@@ -70,84 +39,76 @@ export async function createNewItem(
 	);
 
 	if (type === 'file') {
-		try {
-			// Watch for the inline title element to appear
-			const inlineTitleEl = await waitForElement(document, '.inline-title');
-
-			// Disable space key in explorer while editing inline title
-			const handleKeyDown = (e: Event): void => {
-				if ((e as KeyboardEvent).key === ' ') {
-					e.stopPropagation();
-				}
-			};
-
-			inlineTitleEl.addEventListener('keydown', handleKeyDown, true);
-
-			// Add blur handler to reset the flag
-			inlineTitleEl.addEventListener(
-				'blur',
-				(): void => {
-					plugin.isEditingNewItem = false;
-					inlineTitleEl.removeEventListener('keydown', handleKeyDown, true);
-					setTimeout((): void => {
-						const fileExplorer =
-							plugin.app.workspace.getLeavesOfType('file-explorer')[0];
-						if (fileExplorer) {
-							plugin.app.workspace.setActiveLeaf(fileExplorer, {
-								focus: true
-							});
-						}
-					}, 100);
-				},
-				{ once: true }
-			);
-
-			inlineTitleEl.addEventListener('keydown', (e: Event): void => {
-				if ((e as KeyboardEvent).key === 'Enter') {
-					e.preventDefault();
-					(inlineTitleEl as HTMLElement).blur();
-				}
-			});
-		} catch {
+		let cleaned = false;
+		const cleanup = (): void => {
+			if (cleaned) return;
+			cleaned = true;
 			plugin.isEditingNewItem = false;
-		}
+			document.removeEventListener('blur', handleBlur, true);
+			setTimeout((): void => {
+				const fileExplorer = plugin.app.workspace.getLeavesOfType('file-explorer')[0];
+				if (fileExplorer) {
+					plugin.app.workspace.setActiveLeaf(fileExplorer, { focus: true });
+					triggerMouseMove(plugin);
+				}
+			}, 100);
+		};
+
+		const handleBlur = (e: FocusEvent): void => {
+			const target = e.target as HTMLElement;
+			if (target?.classList?.contains('inline-title')) {
+				cleanup();
+			}
+		};
+
+		document.addEventListener('blur', handleBlur, true);
+
+		// Safety timeout
+		setTimeout((): void => {
+			if (plugin.isEditingNewItem) {
+				cleanup();
+			}
+		}, 10000);
 	} else {
-		try {
-			// For folders, watch for the editable element in explorer
-			const editableFolder = await waitForElement(view.containerEl, '[contenteditable="true"]');
-
-			// Disable space key in explorer while editing folder name
-			const handleKeyDown = (e: Event): void => {
-				if ((e as KeyboardEvent).key === ' ') {
-					e.stopPropagation();
-				}
-			};
-
-			editableFolder.addEventListener('keydown', handleKeyDown, true);
-
-			// Add blur handler to reset the flag
-			editableFolder.addEventListener(
-				'blur',
-				(): void => {
-					plugin.isEditingNewItem = false;
-					editableFolder.removeEventListener(
-						'keydown',
-						handleKeyDown,
-						true
-					);
-					// Remove has-focus from all items in explorer
-					view.containerEl.querySelectorAll('.has-focus').forEach((el) => {
-						el.classList.remove('has-focus');
-					});
-				},
-				{ once: true }
-			);
-		} catch {
+		let cleaned = false;
+		const cleanup = (): void => {
+			if (cleaned) return;
+			cleaned = true;
 			plugin.isEditingNewItem = false;
-			// Clean up any lingering has-focus classes on failure
+			document.removeEventListener('blur', handleBlur, true);
+			document.removeEventListener('keydown', handleKeyDown, true);
 			view.containerEl.querySelectorAll('.has-focus').forEach((el) => {
 				el.classList.remove('has-focus');
 			});
-		}
+			setTimeout(() => {
+				triggerMouseMove(plugin);
+			}, 50);
+		};
+
+		const handleBlur = (e: FocusEvent): void => {
+			const target = e.target as HTMLElement;
+			if (target?.getAttribute('contenteditable') === 'true') {
+				cleanup();
+			}
+		};
+
+		const handleKeyDown = (e: KeyboardEvent): void => {
+			const target = e.target as HTMLElement;
+			if (target?.getAttribute('contenteditable') === 'true') {
+				if (e.key === 'Enter') {
+					setTimeout(cleanup, 50);
+				}
+			}
+		};
+
+		document.addEventListener('blur', handleBlur, true);
+		document.addEventListener('keydown', handleKeyDown, true);
+
+		// Safety timeout to reset the flag after 10 seconds if something goes wrong
+		setTimeout((): void => {
+			if (plugin.isEditingNewItem) {
+				cleanup();
+			}
+		}, 10000);
 	}
 }

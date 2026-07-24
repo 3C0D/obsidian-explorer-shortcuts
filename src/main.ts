@@ -70,7 +70,6 @@ export default class ExplorerShortcuts extends Plugin {
 }
 
 function mouseMoveEvents(this: ExplorerShortcuts, e: MouseEvent): void {
-
 	this.elementFromPoint = getEltFromMousePos(this, e);
 	if (!isOverExplorerNavContainer(this)) return;
 	this.explorerfolderContainer = isOverNavFolder(this);
